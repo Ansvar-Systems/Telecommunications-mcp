@@ -332,6 +332,60 @@ describe("Telecommunications MCP domain service", () => {
     db.close();
   });
 
+  it("maps NIST SP 800-53 control references for telecom security baselines", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("NIST 800-53 SC-7 boundary protection for telecom control plane", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "nist-sp-800-53")).toBe(true);
+
+    db.close();
+  });
+
+  it("maps IEC 62443 references for telecom edge and OT-like environments", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("IEC 62443 zones and conduits security level profile", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "iec-62443")).toBe(true);
+
+    db.close();
+  });
+
+  it("maps NIS2 article references in telecom context", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("NIS2 Art.21 telecom risk management measures", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "nis2")).toBe(true);
+
+    db.close();
+  });
+
+  it("maps GDPR article references in telecom context", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("GDPR Art.32 security of processing for subscriber data", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "gdpr")).toBe(true);
+
+    db.close();
+  });
+
+  it("maps FCC CPNI references for US carrier obligations", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("CPNI 47 CFR 64.2001 and 64.2011 safeguards", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "fcc-cpni")).toBe(true);
+
+    db.close();
+  });
+
+  it("maps EU CRA references for telecom connected products", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("EU CRA essential cybersecurity requirements for telecom CPE", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "cra")).toBe(true);
+
+    db.close();
+  });
+
   it("maps BCP38/uRPF shorthand to ingress filtering standard", () => {
     const { service, db } = createService();
     const result = service.mapToTechnicalStandards("uRPF BCP38 anti-spoofing for broadband edges", undefined);

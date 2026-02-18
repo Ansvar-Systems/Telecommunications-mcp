@@ -139,6 +139,7 @@ Current core knowledge coverage includes:
 - 10/10 telecom data categories from the telecom spec
 - 27/27 core telecom threat scenarios across 5G, NFV/SDN, lawful intercept, infrastructure, and privacy
 - jurisdiction overlays for 50 European country profiles and all 50 US states + DC
+- expanded standards crosswalk depth including telecom-native standards plus implementation baseline profiles (NIST SP 800-53, IEC 62443, NIS2, GDPR, FCC CPNI, EU CRA)
 
 ## Run
 

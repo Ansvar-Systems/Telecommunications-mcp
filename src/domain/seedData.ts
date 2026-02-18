@@ -1274,6 +1274,119 @@ export const technicalStandards: TechnicalStandard[] = [
     last_updated: LAST_UPDATED
   },
   {
+    id: "nist-sp-800-53",
+    name: "NIST SP 800-53 Revision 5",
+    version: "Rev.5",
+    publisher: "NIST",
+    scope: "Comprehensive security and privacy control catalog used for telecom management-plane, platform, and organizational control baselines.",
+    key_clauses: [
+      { clause: "SC-7", summary: "Boundary protection and segmentation controls." },
+      { clause: "AU-9", summary: "Protection of audit information from tampering." }
+    ],
+    control_mappings: [
+      { framework: "NIS2", control: "Art.21 risk management and technical measures alignment" },
+      { framework: "ISO 27001:2022", control: "Annex A control family implementation depth" }
+    ],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21" }],
+    implementation_guidance: "Use as a detailed implementation baseline for telecom SOC, OSS/BSS, and network management control families.",
+    licensing_restrictions: "Public domain.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "iec-62443",
+    name: "IEC 62443 series",
+    version: "Current editions",
+    publisher: "IEC",
+    scope: "Industrial automation and control systems cybersecurity requirements relevant to telecom OT, edge sites, and cyber-physical dependencies.",
+    key_clauses: [
+      { clause: "IEC 62443-3-3", summary: "System security requirements and security levels." },
+      { clause: "IEC 62443-2-1", summary: "IACS security program requirements for operators." }
+    ],
+    control_mappings: [
+      { framework: "NIS2", control: "Operational resilience and technical control hardening" },
+      { framework: "ETSI NFV SEC", control: "Segmentation and virtualization security overlays" }
+    ],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21 resilience and risk treatment" }],
+    implementation_guidance: "Apply for telecom edge and infrastructure environments with OT-like characteristics and strict availability requirements.",
+    licensing_restrictions: "IEC standards text is licensed.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "nis2",
+    name: "Directive (EU) 2022/2555 (NIS2)",
+    version: "2022",
+    publisher: "European Union",
+    scope: "EU cybersecurity risk-management and incident-reporting obligations for essential and important entities including telecom sectors.",
+    key_clauses: [
+      { clause: "Art.21", summary: "Cybersecurity risk-management measures." },
+      { clause: "Art.23", summary: "Incident notification obligations and staged reporting." }
+    ],
+    control_mappings: [
+      { framework: "ENISA 5G Toolbox", control: "EU telecom risk treatment and supply chain measures" },
+      { framework: "NIST CSF 2.0", control: "Govern/protect/detect/respond/recover outcome alignment" }
+    ],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21/23" }],
+    implementation_guidance: "Treat as regulatory baseline for EU telecom security programs; route exact legal interpretation to EU Regulations MCP.",
+    licensing_restrictions: "EU legal text is publicly available.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "gdpr",
+    name: "Regulation (EU) 2016/679 (GDPR)",
+    version: "2016",
+    publisher: "European Union",
+    scope: "EU personal data protection baseline governing telecom subscriber, traffic-linked, and identifier processing contexts.",
+    key_clauses: [
+      { clause: "Art.5", summary: "Principles relating to processing of personal data." },
+      { clause: "Art.32", summary: "Security of processing requirements." }
+    ],
+    control_mappings: [
+      { framework: "ISO/IEC 27701", control: "PII governance and rights handling support" },
+      { framework: "ePrivacy Directive", control: "Communications confidentiality and metadata handling overlays" }
+    ],
+    regulation_mappings: [{ regulation_id: "GDPR", article_or_section: "Art.5/6/32" }],
+    implementation_guidance: "Treat as legal baseline for telecom personal data operations and route article-level legal text to EU Regulations MCP.",
+    licensing_restrictions: "EU legal text is publicly available.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "fcc-cpni",
+    name: "FCC CPNI Rules (47 CFR 64.2001 et seq.)",
+    version: "Current",
+    publisher: "FCC",
+    scope: "US telecom customer proprietary network information handling, disclosure, and protection obligations.",
+    key_clauses: [
+      { clause: "47 CFR 64.2001", summary: "Definition and scope of CPNI." },
+      { clause: "47 CFR 64.2011", summary: "Safeguards required for CPNI handling." }
+    ],
+    control_mappings: [
+      { framework: "NIST SP 800-53", control: "Access control, auditing, and data protection controls for telecom customer records" }
+    ],
+    regulation_mappings: [{ regulation_id: "CPNI", article_or_section: "47 CFR 64.2001/64.2011" }],
+    implementation_guidance: "Apply US carrier-specific handling safeguards for subscriber account and usage information with auditable access controls.",
+    licensing_restrictions: "Public domain regulatory text.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "cra",
+    name: "EU Cyber Resilience Act",
+    version: "Regulation (EU) 2024/2847",
+    publisher: "European Union",
+    scope: "Cybersecurity requirements for products with digital elements relevant to telecom CPE, IoT, and connected network equipment lifecycles.",
+    key_clauses: [
+      { clause: "Essential cybersecurity requirements", summary: "Security-by-design and vulnerability handling obligations for covered products." },
+      { clause: "Vulnerability reporting obligations", summary: "Coordinated disclosure and reporting expectations for exploited vulnerabilities." }
+    ],
+    control_mappings: [
+      { framework: "ETSI EN 303 645", control: "IoT baseline control implementation support" },
+      { framework: "GSMA NESAS/SCAS", control: "Product assurance and supplier evidence reinforcement" }
+    ],
+    regulation_mappings: [{ regulation_id: "EU CRA", article_or_section: "Essential requirements and vulnerability handling obligations" }],
+    implementation_guidance: "Use as product-security compliance driver for telecom-connected device ecosystems and supplier qualification workflows.",
+    licensing_restrictions: "EU legal text is publicly available.",
+    last_updated: LAST_UPDATED
+  },
+  {
     id: "3gpp-ts-33-series",
     name: "3GPP Security TS 33.xxx",
     version: "Release 17+",
@@ -2318,6 +2431,16 @@ export const authoritativeSources: AuthoritativeSource[] = [
     refresh_cadence: "Per revision",
     source_type: "standards",
     source_url: "https://www.iso.org/",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "src-iec",
+    source_name: "IEC",
+    content: "IEC 62443 series metadata for telecom OT and infrastructure security mapping",
+    license: "Licensed standards text",
+    refresh_cadence: "Per revision",
+    source_type: "standards",
+    source_url: "https://www.iec.ch/",
     last_updated: LAST_UPDATED
   },
   {

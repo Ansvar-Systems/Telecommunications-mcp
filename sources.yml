@@ -156,6 +156,17 @@ sources:
       method: manual-curation
       notes: Source for ISO/IEC 27001 and ISO/IEC 27701 references.
 
+  - id: src-iec
+    name: IEC
+    content: IEC 62443 series metadata used for telecom OT and infrastructure security mappings
+    source_type: standards
+    url: https://www.iec.ch/
+    license: Licensed standards text
+    refresh_cadence: Per revision
+    provenance:
+      method: manual-curation
+      notes: Source for IEC 62443 references used in telecom virtualization and infrastructure security mapping.
+
   - id: src-itu
     name: ITU-T
     content: Telecommunications security recommendations (for example X.805 architecture guidance)
