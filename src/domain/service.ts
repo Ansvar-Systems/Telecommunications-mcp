@@ -122,6 +122,39 @@ const DOMAIN_TOPICS = [
   "caller_id_authentication"
 ] as const;
 
+const TECHNICAL_STANDARD_ALIAS_HINTS: Record<string, string[]> = {
+  "3gpp-ts-33-series": ["ts 33.501", "sba security", "5g authentication", "5g key hierarchy"],
+  "3gpp-ts-33-interconnect": ["ts 33.210", "ts 33.310", "interconnect security", "network domain security"],
+  "3gpp-ts-33-li": ["ts 33.126", "ts 33.127", "ts 33.128", "3gpp lawful intercept"],
+  "etsi-li": ["ts 103 120", "etsi lawful intercept", "li handover interface"],
+  "gsma-fs11": ["ss7 security", "diameter security", "signaling firewall"],
+  "gsma-fs19": ["interconnect security monitoring", "operator interconnect threat monitoring"],
+  "gsma-sgp-22": ["consumer esim", "rsp consumer esim"],
+  "gsma-sgp-02": ["m2m esim", "m2m rsp"],
+  "gsma-sgp-32": ["iot esim", "iot rsp", "euicc iot provisioning"],
+  "ietf-rfc-3704": ["bcp38", "bcp 38", "bcp84", "bcp 84", "urpf", "ingress filtering", "anti-spoofing"],
+  "ietf-rfc-7454": ["bgp operations", "routing security operations", "prefix filtering"],
+  "ietf-rfc-8210": ["rpki-to-router", "rpki to router", "rtr protocol", "cache to router"],
+  "ietf-rfc-6480": ["rpki framework", "resource public key infrastructure"],
+  "ietf-rfc-6811": ["route origin validation", "rov", "origin validation"],
+  "ietf-rfc-8205": ["bgpsec", "path validation"],
+  "ietf-rfc-9234": ["route leak", "otc", "only-to-customer"],
+  "ietf-rfc-dnssec-core": ["dnssec", "zone signing", "rrsig", "dns validation"],
+  "ietf-rfc-7858": ["dot", "dns over tls"],
+  "ietf-rfc-8484": ["doh", "dns over https"],
+  "ietf-rfc-9156": ["qname minimisation", "qname minimization", "query name minimisation", "query name minimization"],
+  "ietf-rfc-8446": ["tls 1.3"],
+  "ietf-rfc-8588": ["shaken passport extension", "oob shaken", "out-of-band shaken"],
+  "ietf-rfc-8946": ["div passporT", "diversion passporT", "diverted calls stir"],
+  "ietf-rfc-9060": ["rich call data", "rcd passporT", "branded calling"],
+  "stir-shaken": ["caller id authentication", "robocall mitigation", "passporT", "attestation"],
+  "etsi-en-303-645": ["consumer iot baseline", "no default password", "iot vulnerability disclosure"],
+  "etsi-ts-103-701": ["iot conformity assessment", "en 303 645 conformance"],
+  "itu-t-x805": ["security dimensions", "security layers and planes"],
+  "itu-t-x1051": ["telecom isms", "telecommunications information security management"],
+  "itu-t-x1053": ["telecom threat information sharing", "csp cybersecurity information exchange"]
+};
+
 function intersection<T>(a: T[], b: T[]): T[] {
   const right = new Set(b);
   return a.filter((item) => right.has(item));
@@ -1540,8 +1573,9 @@ export class TelecomDomainService {
   }
 
   mapToTechnicalStandards(requirementRef?: string, controlId?: string) {
-    const requirement = (requirementRef ?? "").toLowerCase();
-    const control = (controlId ?? "").toLowerCase();
+    const requirement = (requirementRef ?? "").toLowerCase().trim();
+    const control = (controlId ?? "").toLowerCase().trim();
+    const combinedInput = `${requirement} ${control}`.trim();
     const requirementTokens = requirement
       .split(/[^a-z0-9.]+/)
       .map((token) => token.trim())
@@ -1562,34 +1596,70 @@ export class TelecomDomainService {
       return matched >= Math.min(2, requirementTokens.length);
     };
 
-    const matched = this.standards.filter((standard) => {
-      const scopeText = `${standard.name} ${standard.scope} ${standard.implementation_guidance}`.toLowerCase();
-      const clauseMatch = standard.key_clauses.some((clause) =>
-        `${clause.clause} ${clause.summary}`.toLowerCase().includes(requirement) ||
-        matchesTokens(`${clause.clause} ${clause.summary}`)
-      );
-      const controlMatch = standard.control_mappings.some((mapping) =>
-        `${mapping.framework} ${mapping.control}`.toLowerCase().includes(control)
-      );
-      const regulationMatch = standard.regulation_mappings.some((mapping) =>
-        `${mapping.regulation_id} ${mapping.article_or_section}`.toLowerCase().includes(requirement) ||
-        matchesTokens(`${mapping.regulation_id} ${mapping.article_or_section}`)
-      );
+    const ranked = this.standards
+      .map((standard) => {
+        const scopeText = `${standard.name} ${standard.scope} ${standard.implementation_guidance}`.toLowerCase();
+        const aliases = TECHNICAL_STANDARD_ALIAS_HINTS[standard.id] ?? [];
+        const aliasMatch = combinedInput.length > 0 && aliases.some((alias) => combinedInput.includes(alias.toLowerCase()));
 
-      return (
-        (requirement.length > 0 &&
-          (scopeText.includes(requirement) || matchesTokens(scopeText) || clauseMatch || regulationMatch)) ||
-        (control.length > 0 && controlMatch)
-      );
-    });
+        const clauseMatch =
+          requirement.length > 0 &&
+          standard.key_clauses.some((clause) => {
+            const clauseText = `${clause.clause} ${clause.summary}`.toLowerCase();
+            return clauseText.includes(requirement) || matchesTokens(clauseText);
+          });
+
+        const controlMatch =
+          control.length > 0 &&
+          standard.control_mappings.some((mapping) => `${mapping.framework} ${mapping.control}`.toLowerCase().includes(control));
+
+        const regulationMatch =
+          requirement.length > 0 &&
+          standard.regulation_mappings.some((mapping) => {
+            const regulationText = `${mapping.regulation_id} ${mapping.article_or_section}`.toLowerCase();
+            return regulationText.includes(requirement) || matchesTokens(regulationText);
+          });
+
+        const scopeExactMatch = requirement.length > 0 && scopeText.includes(requirement);
+        const scopeTokenMatch = requirement.length > 0 && matchesTokens(scopeText);
+
+        let score = 0;
+        if (aliasMatch) {
+          score += 6;
+        }
+        if (scopeExactMatch) {
+          score += 4;
+        }
+        if (scopeTokenMatch) {
+          score += 3;
+        }
+        if (clauseMatch) {
+          score += 4;
+        }
+        if (regulationMatch) {
+          score += 3;
+        }
+        if (controlMatch) {
+          score += 4;
+        }
+
+        if (combinedInput.length === 0 || score === 0) {
+          return null;
+        }
+
+        const relevance = score >= 8 ? "high" : "medium";
+        return { standard, score, relevance };
+      })
+      .filter((entry): entry is { standard: TechnicalStandard; score: number; relevance: "high" | "medium" } => entry !== null)
+      .sort((a, b) => b.score - a.score || a.standard.name.localeCompare(b.standard.name));
 
     return {
-      standard_mappings: matched.map((standard) => ({
-        standard_id: standard.id,
-        standard_name: standard.name,
-        clauses: standard.key_clauses,
-        relevance: "high",
-        implementation_guidance: standard.implementation_guidance
+      standard_mappings: ranked.map((entry) => ({
+        standard_id: entry.standard.id,
+        standard_name: entry.standard.name,
+        clauses: entry.standard.key_clauses,
+        relevance: entry.relevance,
+        implementation_guidance: entry.standard.implementation_guidance
       }))
     };
   }

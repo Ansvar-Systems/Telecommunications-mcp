@@ -75,6 +75,8 @@ Each tool returns the shared `{ data, metadata }` response envelope including ci
 - optional exact-reference resolution flow for clause packs (`resolve_exact_references: true`) via foundation MCP joins
 - optional persistence when resolving exact references (`persist_exact_references: true`)
 
+`map_to_technical_standards` includes alias-aware expert matching for telecom shorthand and operator language (for example BCP38/uRPF, ROV, DoT/DoH, QNAME minimization, and STIR/SHAKEN PASSporT extensions).
+
 ## Expertise QA Gate
 
 Run the expertise quality gate locally/CI:

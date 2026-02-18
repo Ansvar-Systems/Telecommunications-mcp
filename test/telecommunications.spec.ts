@@ -332,6 +332,53 @@ describe("Telecommunications MCP domain service", () => {
     db.close();
   });
 
+  it("maps BCP38/uRPF shorthand to ingress filtering standard", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("uRPF BCP38 anti-spoofing for broadband edges", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "ietf-rfc-3704")).toBe(true);
+
+    db.close();
+  });
+
+  it("maps route leak OTC shorthand to RFC 9234", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("Route leak OTC validation on transit peering", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "ietf-rfc-9234")).toBe(true);
+
+    db.close();
+  });
+
+  it("maps DoT and DoH shorthand to DNS privacy standards", () => {
+    const { service, db } = createService();
+    const dotResult = service.mapToTechnicalStandards("DoT resolver profile for subscriber DNS privacy", undefined);
+    const dohResult = service.mapToTechnicalStandards("DoH endpoint policy in ISP network", undefined);
+
+    expect(dotResult.standard_mappings.some((mapping) => mapping.standard_id === "ietf-rfc-7858")).toBe(true);
+    expect(dohResult.standard_mappings.some((mapping) => mapping.standard_id === "ietf-rfc-8484")).toBe(true);
+
+    db.close();
+  });
+
+  it("maps QNAME minimization shorthand to RFC 9156", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("Enable QNAME minimization on recursive resolvers", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "ietf-rfc-9156")).toBe(true);
+
+    db.close();
+  });
+
+  it("maps branded calling shorthand to STIR rich call data standard", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("Branded calling rich call data trust model", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "ietf-rfc-9060")).toBe(true);
+
+    db.close();
+  });
+
   it("compares EU vs US metadata obligations", () => {
     const { service, db } = createService();
     const result = service.compareJurisdictions("metadata retention/access", ["SE", "US"]);
