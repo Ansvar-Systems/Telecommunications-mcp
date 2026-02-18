@@ -1,5 +1,6 @@
 {
   "name": "@ansvar/telecommunications-mcp",
+  "mcpName": "eu.ansvar/telecommunications-mcp",
   "version": "1.0.0",
   "description": "Telecommunications domain MCP for 5G/NFV/telecom compliance intelligence",
   "type": "module",
@@ -14,8 +15,11 @@
     "start": "node dist/mcp/stdio.js",
     "start:http": "node dist/server/http.js",
     "test": "vitest run",
+    "test:contract": "vitest run test/golden-contract.spec.ts",
     "quality:expertise": "node --import tsx scripts/expertise-audit.ts",
-    "quality:exact-backlog": "node --import tsx scripts/promote-exact-references.ts --dry-run"
+    "quality:exact-backlog": "node --import tsx scripts/promote-exact-references.ts --dry-run",
+    "check-source-updates": "node --import tsx scripts/check-source-updates.ts",
+    "check:golden-hashes": "node --import tsx scripts/check-golden-hashes.ts"
   },
   "keywords": [
     "mcp",

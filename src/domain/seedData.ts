@@ -141,7 +141,7 @@ export const architecturePatterns: ArchitecturePattern[] = [
       }
     ],
     known_weaknesses: ["SIP spoofing", "Fraud via weak interconnect filtering"],
-    applicable_standards: ["3gpp-ts-33-series", "stir-shaken"],
+    applicable_standards: ["3gpp-ts-33-series", "stir-shaken", "ietf-rfc-8588", "ietf-rfc-8946", "ietf-rfc-9060"],
     last_updated: LAST_UPDATED
   },
   {
@@ -161,7 +161,7 @@ export const architecturePatterns: ArchitecturePattern[] = [
       }
     ],
     known_weaknesses: ["BGP route leaks", "Timing spoofing", "Fiber cut single points of failure"],
-    applicable_standards: ["manrs", "rfc-7258"],
+    applicable_standards: ["manrs", "rfc-7258", "ietf-rfc-3704", "ietf-rfc-7454", "ietf-rfc-8210", "ietf-rfc-9234"],
     last_updated: LAST_UPDATED
   },
   {
@@ -221,7 +221,7 @@ export const architecturePatterns: ArchitecturePattern[] = [
       }
     ],
     known_weaknesses: ["Overprivileged service accounts", "Lateral movement through management plane"],
-    applicable_standards: ["nis2", "iso-27001"],
+    applicable_standards: ["nis2", "iso-27001", "itu-t-x1051"],
     last_updated: LAST_UPDATED
   },
   {
@@ -261,7 +261,7 @@ export const architecturePatterns: ArchitecturePattern[] = [
       }
     ],
     known_weaknesses: ["Resolver abuse", "Cache poisoning if DNSSEC validation absent"],
-    applicable_standards: ["manrs", "rfc-7258", "nis2"],
+    applicable_standards: ["manrs", "rfc-7258", "nis2", "ietf-rfc-dnssec-core", "ietf-rfc-7858", "ietf-rfc-8484", "ietf-rfc-9156"],
     last_updated: LAST_UPDATED
   },
   {
@@ -281,7 +281,7 @@ export const architecturePatterns: ArchitecturePattern[] = [
       }
     ],
     known_weaknesses: ["BGP hijack impact", "DDoS saturation"],
-    applicable_standards: ["manrs", "nis2", "fcc-cpni"],
+    applicable_standards: ["manrs", "nis2", "fcc-cpni", "ietf-rfc-6480", "ietf-rfc-6811", "ietf-rfc-7454", "ietf-rfc-9234"],
     last_updated: LAST_UPDATED
   },
   {
@@ -301,7 +301,7 @@ export const architecturePatterns: ArchitecturePattern[] = [
       }
     ],
     known_weaknesses: ["Weak device credentials", "Unsafe OTA pipeline"],
-    applicable_standards: ["cra", "etsi-mec", "gsma-fs31"],
+    applicable_standards: ["cra", "etsi-mec", "gsma-fs31", "gsma-sgp-32", "etsi-en-303-645", "etsi-ts-103-701"],
     last_updated: LAST_UPDATED
   }
 ];
@@ -1218,7 +1218,8 @@ export const technicalStandards: TechnicalStandard[] = [
     name: "ISO/IEC 27001:2022",
     version: "2022",
     publisher: "ISO/IEC",
-    scope: "Information security management baseline with controls relevant to telecom data governance and record retention.",
+    scope:
+      "Cross-domain ISMS baseline used as a bridge reference; detailed control interpretation should be delegated to Security Controls MCP.",
     key_clauses: [
       { clause: "A.5.33", summary: "Protection of records and retention governance." },
       { clause: "A.8.24", summary: "Use of cryptography." }
@@ -1229,7 +1230,7 @@ export const technicalStandards: TechnicalStandard[] = [
     ],
     regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21" }],
     implementation_guidance:
-      "Define telecom data retention schedules, record protection, and secure disposal workflows with auditable approvals.",
+      "Use as a high-level bridge and route detailed control language/mappings to Security Controls MCP for authoritative interpretation.",
     licensing_restrictions: "ISO text is licensed.",
     last_updated: LAST_UPDATED
   },
@@ -1254,13 +1255,13 @@ export const technicalStandards: TechnicalStandard[] = [
     last_updated: LAST_UPDATED
   },
   {
-    id: "nist-sp-800-61r2",
-    name: "NIST SP 800-61 Revision 2",
-    version: "Rev.2",
+    id: "nist-sp-800-61r3",
+    name: "NIST SP 800-61 Revision 3",
+    version: "Rev.3",
     publisher: "NIST",
-    scope: "Computer security incident handling guide with lifecycle and coordination practices.",
+    scope: "Incident response recommendations for managing cybersecurity risk with updated governance and lifecycle guidance.",
     key_clauses: [
-      { clause: "Section 3.2", summary: "Incident handling lifecycle from preparation through lessons learned." }
+      { clause: "Lifecycle guidance", summary: "Preparation, detection/analysis, containment, eradication, recovery, and post-incident improvement." }
     ],
     control_mappings: [
       { framework: "NIS2", control: "Art.21 incident handling and reporting maturity support" },
@@ -1268,7 +1269,7 @@ export const technicalStandards: TechnicalStandard[] = [
     ],
     regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21/23" }],
     implementation_guidance:
-      "Use as telecom SOC process baseline for triage, escalation, reporting triggers, and post-incident remediation loops.",
+      "Use as telecom SOC process baseline for triage, escalation, regulator-notification triggers, and post-incident remediation loops.",
     licensing_restrictions: "Public domain.",
     last_updated: LAST_UPDATED
   },
@@ -1499,6 +1500,435 @@ export const technicalStandards: TechnicalStandard[] = [
     regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21" }],
     implementation_guidance: "Adopt RPKI validation, route filtering and coordinated incident response workflows.",
     licensing_restrictions: "Open guidance.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "3gpp-ts-33-interconnect",
+    name: "3GPP TS 33.210 / TS 33.310",
+    version: "Release 17+",
+    publisher: "3GPP",
+    scope: "Network domain security and interconnect protection for IP-based core/backbone telecom environments.",
+    key_clauses: [
+      { clause: "TS 33.210", summary: "Network domain security requirements for IP networks." },
+      { clause: "TS 33.310", summary: "Network domain security profile and key management for interconnect protection." }
+    ],
+    control_mappings: [{ framework: "NIS2", control: "Art.21 network and communication security" }],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21(2)(h)" }],
+    implementation_guidance: "Harden interconnect boundaries with authenticated tunnels, key lifecycle governance, and strict trust-zone segregation.",
+    licensing_restrictions: "Free access via 3GPP portal.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "3gpp-ts-33-li",
+    name: "3GPP TS 33.126 / TS 33.127 / TS 33.128",
+    version: "Release 17+",
+    publisher: "3GPP",
+    scope: "Lawful interception security requirements and handover interface controls for 3GPP systems.",
+    key_clauses: [
+      { clause: "TS 33.126", summary: "Security requirements for lawful interception." },
+      { clause: "TS 33.127", summary: "Handover interface requirements for circuit-switched intercept outputs." },
+      { clause: "TS 33.128", summary: "Handover interface requirements for packet intercept outputs." }
+    ],
+    control_mappings: [{ framework: "CALEA / national LI laws", control: "Secure and auditable intercept implementation" }],
+    regulation_mappings: [{ regulation_id: "National LI laws", article_or_section: "Implementation-specific" }],
+    implementation_guidance: "Apply dual control, strict warrant scoping, tamper-evident logging, and secure mediation/handover boundaries.",
+    licensing_restrictions: "Free access via 3GPP portal.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "etsi-ts-101-671",
+    name: "ETSI TS 101 671",
+    version: "Current",
+    publisher: "ETSI",
+    scope: "Lawful interception handover interface framework and service-independent requirements.",
+    key_clauses: [{ clause: "HI framework", summary: "Defines handover concepts, interfaces, and interception information model." }],
+    control_mappings: [{ framework: "National LI laws", control: "Handover interface and mediation governance" }],
+    regulation_mappings: [{ regulation_id: "National LI laws", article_or_section: "Lawful intercept handover obligations" }],
+    implementation_guidance: "Use as baseline LI interface model to ensure consistent and secure handover architecture across service domains.",
+    licensing_restrictions: "Free access via ETSI.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "etsi-ts-102-232",
+    name: "ETSI TS 102 232 series",
+    version: "Current",
+    publisher: "ETSI",
+    scope: "Lawful interception handover interface details for IP-based services, including packet and service-specific payloads.",
+    key_clauses: [{ clause: "Service-specific HI", summary: "Defines protocol/service-specific lawful intercept handover payloads and metadata." }],
+    control_mappings: [{ framework: "National LI laws", control: "Service-specific lawful intercept delivery integrity" }],
+    regulation_mappings: [{ regulation_id: "National LI laws", article_or_section: "IP service intercept implementation obligations" }],
+    implementation_guidance: "Ensure protocol-accurate intercept output generation and integrity checks for packet-based service interception.",
+    licensing_restrictions: "Free access via ETSI.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "gsma-fs11",
+    name: "GSMA FS.11",
+    version: "Current",
+    publisher: "GSMA",
+    scope: "Security guidance for SS7 and interconnect signaling risk management.",
+    key_clauses: [{ clause: "Interconnect controls", summary: "Signaling firewalls, anomaly monitoring, and inter-operator abuse response." }],
+    control_mappings: [{ framework: "NIS2", control: "Art.21 threat prevention and incident handling" }],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21/23" }],
+    implementation_guidance: "Deploy signaling firewalls and partner risk controls for SS7/Diameter interconnect traffic and abuse scenarios.",
+    licensing_restrictions: "Membership may be required for full text.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "gsma-fs19",
+    name: "GSMA FS.19",
+    version: "Current",
+    publisher: "GSMA",
+    scope: "Interconnect security controls and operational recommendations for telecom signaling environments.",
+    key_clauses: [{ clause: "Monitoring and governance", summary: "Operator interconnect threat monitoring and cross-operator response coordination." }],
+    control_mappings: [{ framework: "NIS2", control: "Supply chain and partner risk management" }],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21(2)(d)" }],
+    implementation_guidance: "Integrate interconnect threat intelligence and partner assurance checks into SOC and fraud-security operations.",
+    licensing_restrictions: "Membership may be required for full text.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "gsma-sgp-22",
+    name: "GSMA SGP.22",
+    version: "Current",
+    publisher: "GSMA",
+    scope: "Consumer eSIM remote SIM provisioning security architecture and procedures.",
+    key_clauses: [{ clause: "RSP architecture", summary: "Defines secure provisioning workflows and trust boundaries for consumer eSIM." }],
+    control_mappings: [{ framework: "NIS2", control: "Identity, credential, and supply chain security" }],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21" }],
+    implementation_guidance: "Enforce certificate governance, profile lifecycle controls, and privileged workflow auditing for consumer eSIM operations.",
+    licensing_restrictions: "Membership may be required for full text.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "gsma-sgp-02",
+    name: "GSMA SGP.02",
+    version: "Current",
+    publisher: "GSMA",
+    scope: "M2M eSIM remote provisioning technical specification and trust model.",
+    key_clauses: [{ clause: "M2M RSP model", summary: "Defines secure lifecycle operations for M2M subscription provisioning." }],
+    control_mappings: [{ framework: "NIS2", control: "Secure operations and device identity governance" }],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21" }],
+    implementation_guidance: "Apply strict entitlement checks, secure profile transport, and anti-fraud controls for M2M provisioning channels.",
+    licensing_restrictions: "Membership may be required for full text.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "gsma-sgp-32",
+    name: "GSMA SGP.32",
+    version: "Current",
+    publisher: "GSMA",
+    scope: "IoT eSIM remote provisioning architecture for constrained/large-scale IoT deployments.",
+    key_clauses: [{ clause: "IoT RSP architecture", summary: "Defines secure provisioning and lifecycle trust model for IoT eUICC estates." }],
+    control_mappings: [{ framework: "NIS2", control: "Asset management and secure lifecycle controls" }],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21" }],
+    implementation_guidance: "Segment IoT provisioning trust domains, enforce lifecycle attestations, and monitor high-volume provisioning anomalies.",
+    licensing_restrictions: "Membership may be required for full text.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "ietf-rfc-4301",
+    name: "RFC 4301 Security Architecture for IP",
+    version: "2005",
+    publisher: "IETF",
+    scope: "Core IPsec security architecture for secure IP communications.",
+    key_clauses: [{ clause: "Security architecture", summary: "Defines security policy database and security association concepts for IPsec." }],
+    control_mappings: [{ framework: "NIS2", control: "Network and communication security" }],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21(2)(h)" }],
+    implementation_guidance: "Use as baseline for secure telecom interconnect tunnels and management-plane transport protection.",
+    licensing_restrictions: "Open RFC.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "ietf-rfc-4271",
+    name: "RFC 4271 BGP-4",
+    version: "2006",
+    publisher: "IETF",
+    scope: "Border Gateway Protocol baseline specification for inter-domain routing.",
+    key_clauses: [{ clause: "Route advertisement and path selection", summary: "Defines route exchange and path selection behavior across AS boundaries." }],
+    control_mappings: [{ framework: "MANRS", control: "Routing hygiene baseline" }],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21" }],
+    implementation_guidance: "Apply strict route policy, prefix controls, and peering governance as baseline before advanced routing-security controls.",
+    licensing_restrictions: "Open RFC.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "ietf-rfc-6480",
+    name: "RFC 6480 RPKI Framework",
+    version: "2012",
+    publisher: "IETF",
+    scope: "Resource Public Key Infrastructure framework for Internet number resources and routing security.",
+    key_clauses: [{ clause: "RPKI architecture", summary: "Defines trust model and certificate framework for routing resource authorization." }],
+    control_mappings: [{ framework: "MANRS", control: "Route origin validation readiness" }],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21 resilience measures" }],
+    implementation_guidance: "Implement RPKI validation and governance processes for prefix ownership and route-origin trust.",
+    licensing_restrictions: "Open RFC.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "ietf-rfc-6811",
+    name: "RFC 6811 BGP Prefix Origin Validation",
+    version: "2013",
+    publisher: "IETF",
+    scope: "BGP prefix origin validation using RPKI data.",
+    key_clauses: [{ clause: "Origin validation", summary: "Defines valid/invalid/not-found route origin outcomes and validation behavior." }],
+    control_mappings: [{ framework: "MANRS", control: "RPKI route-origin validation operations" }],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21 prevention and resilience" }],
+    implementation_guidance: "Deploy origin validation in routing policy and define escalation procedures for invalid-route events.",
+    licensing_restrictions: "Open RFC.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "ietf-rfc-8205",
+    name: "RFC 8205 BGPsec Protocol Specification",
+    version: "2017",
+    publisher: "IETF",
+    scope: "Path validation extensions for BGP via BGPsec.",
+    key_clauses: [{ clause: "BGPsec update validation", summary: "Defines cryptographic path validation for BGP path attributes." }],
+    control_mappings: [{ framework: "MANRS", control: "Advanced route-path integrity controls" }],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21 resilience and integrity" }],
+    implementation_guidance: "Use for high-assurance transit scenarios where path validation can be operationally supported.",
+    licensing_restrictions: "Open RFC.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "ietf-rfc-dnssec-core",
+    name: "RFC 4033/4034/4035 DNSSEC core",
+    version: "2005",
+    publisher: "IETF",
+    scope: "DNSSEC architecture, resource records, and protocol modifications for authenticated DNS responses.",
+    key_clauses: [
+      { clause: "RFC 4033", summary: "DNS security introduction and requirements." },
+      { clause: "RFC 4034", summary: "DNSSEC resource records and formats." },
+      { clause: "RFC 4035", summary: "Protocol modifications and validation rules." }
+    ],
+    control_mappings: [{ framework: "NIS2", control: "Service integrity and anti-spoofing controls" }],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21 integrity and resilience" }],
+    implementation_guidance: "Enforce signed zones and validation policies for resolver and authoritative DNS stacks in telecom service domains.",
+    licensing_restrictions: "Open RFC.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "ietf-rfc-7858",
+    name: "RFC 7858 DNS over TLS",
+    version: "2016",
+    publisher: "IETF",
+    scope: "DNS transport confidentiality using TLS.",
+    key_clauses: [{ clause: "DoT transport requirements", summary: "Defines DNS over TLS profile for privacy-preserving resolver communications." }],
+    control_mappings: [{ framework: "ePrivacy/GDPR", control: "Transport confidentiality for subscriber DNS metadata" }],
+    regulation_mappings: [{ regulation_id: "ePrivacy", article_or_section: "Art.5 confidentiality safeguards" }],
+    implementation_guidance: "Use TLS-protected recursive and forwarding paths for subscriber DNS traffic to reduce passive interception risk.",
+    licensing_restrictions: "Open RFC.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "ietf-rfc-8484",
+    name: "RFC 8484 DNS over HTTPS",
+    version: "2018",
+    publisher: "IETF",
+    scope: "DNS transport confidentiality using HTTPS.",
+    key_clauses: [{ clause: "DoH message exchange", summary: "Defines DNS query and response exchange over HTTPS endpoints." }],
+    control_mappings: [{ framework: "ePrivacy/GDPR", control: "Confidential transport for DNS metadata processing" }],
+    regulation_mappings: [{ regulation_id: "ePrivacy", article_or_section: "Art.5 confidentiality safeguards" }],
+    implementation_guidance: "Use controlled DoH deployments with policy enforcement and resolver transparency to balance privacy and operational visibility.",
+    licensing_restrictions: "Open RFC.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "ietf-rfc-9156",
+    name: "RFC 9156 DNS Query Name Minimisation",
+    version: "2021",
+    publisher: "IETF",
+    scope: "Privacy enhancement for recursive resolvers by minimizing query name disclosure.",
+    key_clauses: [{ clause: "QNAME minimisation algorithm", summary: "Limits upstream DNS label disclosure during recursive resolution." }],
+    control_mappings: [{ framework: "Privacy engineering", control: "Data minimization in DNS operations" }],
+    regulation_mappings: [{ regulation_id: "GDPR", article_or_section: "Art.5(1)(c) data minimization" }],
+    implementation_guidance: "Enable and monitor query minimization to reduce metadata leakage across recursive resolution chains.",
+    licensing_restrictions: "Open RFC.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "ietf-rfc-8446",
+    name: "RFC 8446 TLS 1.3",
+    version: "2018",
+    publisher: "IETF",
+    scope: "Modern TLS protocol baseline for secure communications and management interfaces.",
+    key_clauses: [{ clause: "Protocol design and key schedule", summary: "Defines handshake, cipher suites, and forward secrecy model for TLS 1.3." }],
+    control_mappings: [{ framework: "NIS2", control: "Cryptographic hardening and secure communications" }],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21(2)(h)" }],
+    implementation_guidance: "Standardize TLS 1.3 profiles across telecom APIs, control planes, and partner interconnect endpoints.",
+    licensing_restrictions: "Open RFC.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "itu-t-x805",
+    name: "ITU-T X.805",
+    version: "2003 (current recommendation family)",
+    publisher: "ITU-T",
+    scope: "Security architecture framework for end-to-end communication systems and service infrastructures.",
+    key_clauses: [{ clause: "Security dimensions/layers/planes", summary: "Defines architectural security dimensions across infrastructure and service planes." }],
+    control_mappings: [{ framework: "NIS2", control: "Systematic security architecture and risk treatment" }],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21 governance and architecture controls" }],
+    implementation_guidance: "Use X.805 architecture dimensions to structure telecom security architecture reviews and control coverage assessments.",
+    licensing_restrictions: "ITU recommendations are publicly accessible.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "nist-sp-800-187",
+    name: "NIST SP 800-187 Guide to LTE Security",
+    version: "2017",
+    publisher: "NIST",
+    scope: "Security guidance and threat treatment for LTE network components and interfaces.",
+    key_clauses: [{ clause: "LTE threat and control guidance", summary: "Covers control recommendations across evolved packet core and radio access components." }],
+    control_mappings: [{ framework: "NIS2", control: "Risk-based network security measures" }],
+    regulation_mappings: [{ regulation_id: "US federal guidance", article_or_section: "Telecom network security reference guidance" }],
+    implementation_guidance: "Use as legacy-mobile security baseline for LTE dependencies and 4G/5G interworking exposure management.",
+    licensing_restrictions: "Public domain.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "etsi-en-303-645",
+    name: "ETSI EN 303 645",
+    version: "V2.1.1",
+    publisher: "ETSI",
+    scope: "Cyber security baseline for consumer IoT devices commonly deployed in telecom-adjacent broadband and mobile ecosystems.",
+    key_clauses: [
+      { clause: "Section 5", summary: "Core provisions include no universal default passwords, secure updates, and vulnerability disclosure." }
+    ],
+    control_mappings: [{ framework: "EU CRA", control: "Product cybersecurity-by-design baseline support" }],
+    regulation_mappings: [{ regulation_id: "EU CRA", article_or_section: "Cybersecurity requirements for connected products" }],
+    implementation_guidance: "Use for IoT endpoint and CPE security baselines in telecom device onboarding, lifecycle governance, and assurance checks.",
+    licensing_restrictions: "Free access via ETSI.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "etsi-ts-103-701",
+    name: "ETSI TS 103 701",
+    version: "V1.1.1",
+    publisher: "ETSI",
+    scope: "Conformance assessment specification for ETSI EN 303 645 consumer IoT cybersecurity requirements.",
+    key_clauses: [{ clause: "Assessment methodology", summary: "Defines test and assessment methods to evaluate EN 303 645 conformance claims." }],
+    control_mappings: [{ framework: "EU CRA", control: "Conformity assessment and evidence readiness" }],
+    regulation_mappings: [{ regulation_id: "EU CRA", article_or_section: "Conformity assessment and technical documentation support" }],
+    implementation_guidance: "Use as evidentiary framework to validate supplier IoT security claims before telecom deployment approval.",
+    licensing_restrictions: "Free access via ETSI.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "ietf-rfc-3704",
+    name: "RFC 3704 / RFC 8704 Ingress Filtering (BCP 38/84)",
+    version: "2004 / 2020",
+    publisher: "IETF",
+    scope: "Ingress filtering recommendations to mitigate source-address spoofing in ISP and interconnect environments.",
+    key_clauses: [{ clause: "BCP 38/84 guidance", summary: "Operational filtering approaches for customer and multihomed edges to prevent spoofed-source traffic." }],
+    control_mappings: [{ framework: "MANRS", control: "Anti-spoofing action implementation" }],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21 network security and incident prevention" }],
+    implementation_guidance: "Implement anti-spoofing filters at access and peering boundaries and validate effectiveness via routing policy audits.",
+    licensing_restrictions: "Open RFC.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "ietf-rfc-7454",
+    name: "RFC 7454 BGP Operations and Security",
+    version: "2015",
+    publisher: "IETF",
+    scope: "Operational best practices for securing BGP routing infrastructure.",
+    key_clauses: [{ clause: "Section 6", summary: "Operator recommendations for prefix filtering, session protection, and route-policy hygiene." }],
+    control_mappings: [{ framework: "MANRS", control: "Routing operations hardening baseline" }],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21 resilience and preventive controls" }],
+    implementation_guidance: "Apply BGP policy controls, monitoring, and session protection as default telecom backbone hygiene.",
+    licensing_restrictions: "Open RFC.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "ietf-rfc-8210",
+    name: "RFC 8210 RPKI to Router Protocol",
+    version: "2017",
+    publisher: "IETF",
+    scope: "Protocol for distributing validated RPKI payloads from cache servers to routers.",
+    key_clauses: [{ clause: "Protocol behavior", summary: "Defines transport and synchronization semantics for router consumption of validated RPKI data." }],
+    control_mappings: [{ framework: "MANRS", control: "RPKI operational enablement for route validation" }],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21 integrity and resilience safeguards" }],
+    implementation_guidance: "Use authenticated cache-to-router distribution and monitoring to keep route-origin validation data current and trusted.",
+    licensing_restrictions: "Open RFC.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "ietf-rfc-9234",
+    name: "RFC 9234 Route Leak Prevention and Detection",
+    version: "2022",
+    publisher: "IETF",
+    scope: "BGP route-leak prevention and detection using route-leak roles and OTC signaling.",
+    key_clauses: [{ clause: "Route leak roles/OTC", summary: "Defines autonomous-system relationship roles and route propagation checks to prevent leaks." }],
+    control_mappings: [{ framework: "MANRS", control: "Route leak mitigation and peering-policy controls" }],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21 network resilience controls" }],
+    implementation_guidance: "Deploy route-leak role policies and OTC validation in peering/transit workflows to reduce accidental and malicious leaks.",
+    licensing_restrictions: "Open RFC.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "ietf-rfc-8588",
+    name: "RFC 8588 SHAKEN PASSporT Extension",
+    version: "2019",
+    publisher: "IETF",
+    scope: "PASSporT extension support used in SHAKEN caller authentication ecosystems.",
+    key_clauses: [{ clause: "PASSporT extension behavior", summary: "Defines PASSporT claim handling to support SHAKEN interoperability patterns." }],
+    control_mappings: [{ framework: "FCC", control: "Enhanced caller authentication implementation support" }],
+    regulation_mappings: [{ regulation_id: "FCC rules", article_or_section: "47 CFR 64.6300 caller ID authentication implementation context" }],
+    implementation_guidance: "Use with STIR/SHAKEN deployments where additional PASSporT semantics are required for interoperable caller identity validation.",
+    licensing_restrictions: "Open RFC.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "ietf-rfc-8946",
+    name: "RFC 8946 STIR Extension for Diverted Calls",
+    version: "2021",
+    publisher: "IETF",
+    scope: "STIR PASSporT extension supporting authenticated caller identity across call diversion and forwarding scenarios.",
+    key_clauses: [{ clause: "Div PASSporT", summary: "Defines signed diversion information to preserve identity integrity through call forwarding flows." }],
+    control_mappings: [{ framework: "FCC", control: "Caller ID integrity in forwarding/diversion workflows" }],
+    regulation_mappings: [{ regulation_id: "FCC rules", article_or_section: "47 CFR 64.6300 anti-spoofing implementation support" }],
+    implementation_guidance: "Implement diverted-call identity handling to reduce false attestations and identity loss in enterprise and carrier forwarding chains.",
+    licensing_restrictions: "Open RFC.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "ietf-rfc-9060",
+    name: "RFC 9060 STIR Rich Call Data",
+    version: "2021",
+    publisher: "IETF",
+    scope: "PASSporT extension for rich call data claims in STIR/SHAKEN ecosystems.",
+    key_clauses: [{ clause: "Rich call data claims", summary: "Defines signed presentation data elements associated with caller identity assertions." }],
+    control_mappings: [{ framework: "FCC", control: "Caller transparency and anti-spoofing trust signals" }],
+    regulation_mappings: [{ regulation_id: "FCC rules", article_or_section: "47 CFR 64.6300 caller authentication program context" }],
+    implementation_guidance: "Apply with governance controls to prevent misuse of branded and rich caller identity metadata in anti-spoofing ecosystems.",
+    licensing_restrictions: "Open RFC.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "itu-t-x1051",
+    name: "ITU-T X.1051",
+    version: "2023",
+    publisher: "ITU-T",
+    scope: "Information security management guidelines for telecommunications organizations based on ISO/IEC 27002.",
+    key_clauses: [{ clause: "Telecom ISMS guidance", summary: "Tailors information security management guidance to telecom operator environments and operations." }],
+    control_mappings: [{ framework: "NIS2", control: "Governance, risk management, and organizational control maturity support" }],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21 governance and risk-management measures" }],
+    implementation_guidance: "Use as telecom-specific ISMS interpretation layer when translating generic security controls into operator practices.",
+    licensing_restrictions: "ITU publication terms.",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "itu-t-x1053",
+    name: "ITU-T X.1053",
+    version: "2017",
+    publisher: "ITU-T",
+    scope: "Framework for creating and safely exchanging cyber security information in communication service provider ecosystems.",
+    key_clauses: [{ clause: "Information sharing framework", summary: "Defines structures and trust considerations for telecom cyber threat information exchange." }],
+    control_mappings: [{ framework: "NIS2", control: "Threat intelligence and information-sharing capability development" }],
+    regulation_mappings: [{ regulation_id: "NIS2", article_or_section: "Art.21 incident handling and cooperative resilience" }],
+    implementation_guidance: "Use to structure secure telecom sector information-sharing pipelines between operators, suppliers, and national authorities.",
+    licensing_restrictions: "ITU publication terms.",
     last_updated: LAST_UPDATED
   }
 ];
@@ -1811,6 +2241,16 @@ export const authoritativeSources: AuthoritativeSource[] = [
     last_updated: LAST_UPDATED
   },
   {
+    id: "src-atis",
+    source_name: "ATIS",
+    content: "STIR/SHAKEN governance and implementation standards",
+    license: "Standards access varies by publication",
+    refresh_cadence: "Per publication",
+    source_type: "standards",
+    source_url: "https://www.atis.org/",
+    last_updated: LAST_UPDATED
+  },
+  {
     id: "src-oran",
     source_name: "O-RAN Alliance",
     content: "Open RAN security specifications",
@@ -1828,6 +2268,66 @@ export const authoritativeSources: AuthoritativeSource[] = [
     refresh_cadence: "Per revision",
     source_type: "standards",
     source_url: "https://www.nist.gov/",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "src-eur-lex",
+    source_name: "EUR-Lex",
+    content: "Official EU legal texts for EECC, NIS2, GDPR and ePrivacy references",
+    license: "EU Open Data",
+    refresh_cadence: "Continuous",
+    source_type: "regulation",
+    source_url: "https://eur-lex.europa.eu/",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "src-ecfr",
+    source_name: "eCFR",
+    content: "US Code of Federal Regulations telecom references (CPNI, STIR/SHAKEN)",
+    license: "Public domain",
+    refresh_cadence: "Daily",
+    source_type: "regulation",
+    source_url: "https://www.ecfr.gov/",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "src-uscode",
+    source_name: "US Code (House of Representatives)",
+    content: "Federal statutory references including CALEA and ECPA/SCA",
+    license: "Public domain",
+    refresh_cadence: "Continuous",
+    source_type: "regulation",
+    source_url: "https://uscode.house.gov/",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "src-rfc-editor",
+    source_name: "RFC Editor",
+    content: "IETF RFC corpus used for telecom security and privacy references",
+    license: "IETF Trust",
+    refresh_cadence: "Per publication",
+    source_type: "standards",
+    source_url: "https://www.rfc-editor.org/",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "src-iso",
+    source_name: "ISO",
+    content: "ISO/IEC standards metadata for telecom control mapping",
+    license: "Licensed standards text",
+    refresh_cadence: "Per revision",
+    source_type: "standards",
+    source_url: "https://www.iso.org/",
+    last_updated: LAST_UPDATED
+  },
+  {
+    id: "src-itu",
+    source_name: "ITU-T",
+    content: "Telecommunications security recommendations (for example X.805 architecture guidance)",
+    license: "ITU publication terms",
+    refresh_cadence: "Per recommendation update",
+    source_type: "standards",
+    source_url: "https://www.itu.int/",
     last_updated: LAST_UPDATED
   }
 ];

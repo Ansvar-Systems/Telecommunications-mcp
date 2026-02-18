@@ -172,7 +172,7 @@ const CITATIONS = {
   stirShaken: {
     type: "CFR" as const,
     ref: "47 CFR 64.6300",
-    source_url: "https://www.ecfr.gov/current/title-47/part-64/subpart-II"
+    source_url: "https://www.ecfr.gov/current/title-47/chapter-I/subchapter-B/part-64/subpart-HH"
   },
   gpp33501: {
     type: "3GPP" as const,
@@ -211,8 +211,8 @@ const CITATIONS = {
   },
   nist80061: {
     type: "NIST" as const,
-    ref: "NIST SP 800-61r2 Section 3.2",
-    source_url: "https://csrc.nist.gov/publications/detail/sp/800-61/rev-2/final"
+    ref: "NIST SP 800-61r3",
+    source_url: "https://csrc.nist.gov/pubs/sp/800/61/r3/final"
   },
   rfc9325: {
     type: "RFC" as const,
@@ -338,8 +338,8 @@ function globalTechnicalAssertions(jurisdictionKey: string): ClauseAssertion[] {
     },
     {
       id: `std-nist80061-incident-${safeKey}`,
-      regulation_id: "NIST SP 800-61r2",
-      article_or_section: "Section 3.2 (Incident handling lifecycle)",
+      regulation_id: "NIST SP 800-61r3",
+      article_or_section: "Incident response lifecycle and governance guidance",
       topic: "incident_reporting",
       directive: "required",
       summary:
@@ -347,7 +347,7 @@ function globalTechnicalAssertions(jurisdictionKey: string): ClauseAssertion[] {
       confidence: "medium",
       reference_quality: "exact",
       citations: [CITATIONS.nist80061],
-      standard_id: "nist-sp-800-61r2",
+      standard_id: "nist-sp-800-61r3",
       trigger: {
         requires_telecom_service: true
       }

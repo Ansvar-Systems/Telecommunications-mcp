@@ -35,7 +35,8 @@ const asJson = (value: unknown): string => JSON.stringify(value);
 
 export function initializeDatabase(dbPath = defaultDbPath): Database.Database {
   const db = new Database(dbPath);
-  db.pragma("journal_mode = WAL");
+  // DELETE mode avoids sidecar WAL files and is serverless-safe on ephemeral filesystems.
+  db.pragma("journal_mode = DELETE");
   db.pragma("foreign_keys = ON");
 
   const schemaSql = readFileSync(schemaPath, "utf8");

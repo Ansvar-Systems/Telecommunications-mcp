@@ -214,6 +214,124 @@ describe("Telecommunications MCP domain service", () => {
     db.close();
   });
 
+  it("maps BGP route origin validation references to RPKI-related telecom standards", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("RPKI RFC 6811 route origin validation", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "ietf-rfc-6811")).toBe(true);
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "ietf-rfc-6480")).toBe(true);
+
+    db.close();
+  });
+
+  it("maps DNSSEC hardening references to DNS security standards", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("DNSSEC RFC 4035 validation and signing", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "ietf-rfc-dnssec-core")).toBe(true);
+
+    db.close();
+  });
+
+  it("maps GSMA FS.19 interconnect references to telecom standards catalog", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("GSMA FS.19 interconnect security controls", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "gsma-fs19")).toBe(true);
+
+    db.close();
+  });
+
+  it("maps 3GPP TS 33.126 lawful interception references to expanded 3GPP LI standards", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("3GPP TS 33.126 lawful interception requirements", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "3gpp-ts-33-li")).toBe(true);
+
+    db.close();
+  });
+
+  it("maps ITU-T X.805 security architecture references", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("ITU-T X.805 telecom security architecture model", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "itu-t-x805")).toBe(true);
+
+    db.close();
+  });
+
+  it("maps RFC 3704 ingress filtering references to anti-spoofing routing standards", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("RFC 3704 BCP 38 ingress filtering at ISP edge", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "ietf-rfc-3704")).toBe(true);
+
+    db.close();
+  });
+
+  it("maps RFC 9234 route leak prevention references", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("RFC 9234 route leak prevention and OTC validation", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "ietf-rfc-9234")).toBe(true);
+
+    db.close();
+  });
+
+  it("maps RFC 8210 RPKI-to-router references", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("RFC 8210 cache to router protocol for RPKI", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "ietf-rfc-8210")).toBe(true);
+
+    db.close();
+  });
+
+  it("maps ETSI EN 303 645 IoT security references", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("ETSI EN 303 645 consumer IoT cybersecurity baseline", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "etsi-en-303-645")).toBe(true);
+
+    db.close();
+  });
+
+  it("maps ETSI TS 103 701 IoT conformance references", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("ETSI TS 103 701 conformance assessment methods", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "etsi-ts-103-701")).toBe(true);
+
+    db.close();
+  });
+
+  it("maps RFC 8588 SHAKEN PASSporT extension references", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("RFC 8588 SHAKEN PASSporT extension", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "ietf-rfc-8588")).toBe(true);
+
+    db.close();
+  });
+
+  it("maps RFC 9060 rich call data references", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("RFC 9060 rich call data PASSporT", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "ietf-rfc-9060")).toBe(true);
+
+    db.close();
+  });
+
+  it("maps ITU-T X.1051 telecom ISMS references", () => {
+    const { service, db } = createService();
+    const result = service.mapToTechnicalStandards("ITU-T X.1051 telecom ISMS guidance", undefined);
+
+    expect(result.standard_mappings.some((mapping) => mapping.standard_id === "itu-t-x1051")).toBe(true);
+
+    db.close();
+  });
+
   it("compares EU vs US metadata obligations", () => {
     const { service, db } = createService();
     const result = service.compareJurisdictions("metadata retention/access", ["SE", "US"]);

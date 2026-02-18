@@ -1,0 +1,78 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-02-18",
+  "tests": [
+    {
+      "id": "golden-se-eecc-art40",
+      "jurisdiction": "SE",
+      "regulation_id": "EECC",
+      "article_or_section": "Art.40"
+    },
+    {
+      "id": "golden-se-nis2-art21",
+      "jurisdiction": "SE",
+      "regulation_id": "NIS2",
+      "article_or_section": "Art.21"
+    },
+    {
+      "id": "golden-se-nis2-art23",
+      "jurisdiction": "SE",
+      "regulation_id": "NIS2",
+      "article_or_section": "Art.23"
+    },
+    {
+      "id": "golden-se-gdpr",
+      "jurisdiction": "SE",
+      "regulation_id": "GDPR",
+      "article_or_section": "Art.5/6/32/33"
+    },
+    {
+      "id": "golden-se-eprivacy-art5",
+      "jurisdiction": "SE",
+      "regulation_id": "ePrivacy",
+      "article_or_section": "Art.5"
+    },
+    {
+      "id": "golden-us-cpni",
+      "jurisdiction": "US",
+      "regulation_id": "CPNI",
+      "article_or_section": "47 CFR 64.2001"
+    },
+    {
+      "id": "golden-us-ecpa-sca",
+      "jurisdiction": "US",
+      "regulation_id": "ECPA/SCA",
+      "article_or_section": "18 USC 2510+ / 18 USC 2701+"
+    },
+    {
+      "id": "golden-us-calea",
+      "jurisdiction": "US",
+      "regulation_id": "CALEA",
+      "article_or_section": "47 USC 1001"
+    },
+    {
+      "id": "golden-us-stir-shaken",
+      "jurisdiction": "US",
+      "regulation_id": "FCC STIR/SHAKEN",
+      "article_or_section": "47 CFR 64.6300"
+    },
+    {
+      "id": "golden-us-rfc7258",
+      "jurisdiction": "US",
+      "regulation_id": "RFC 7258",
+      "article_or_section": "Section 1 (Pervasive monitoring is an attack)"
+    },
+    {
+      "id": "golden-us-rfc8224",
+      "jurisdiction": "US",
+      "regulation_id": "RFC 8224",
+      "article_or_section": "Section 4 Identity Header and PASSporT validation"
+    },
+    {
+      "id": "golden-us-rfc9325",
+      "jurisdiction": "US",
+      "regulation_id": "RFC 9325",
+      "article_or_section": "Section 4 (Recommendations for use of TLS/DTLS)"
+    }
+  ]
+}

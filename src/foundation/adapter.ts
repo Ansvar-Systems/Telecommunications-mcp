@@ -21,6 +21,12 @@ export interface FoundationMcpAdapterOptions {
   fetchFn?: typeof fetch;
 }
 
+const MCP_PROTOCOL_VERSION = "2025-03-26";
+const ADAPTER_CLIENT_INFO = {
+  name: "telecommunications-foundation-adapter",
+  version: "1.0.0"
+};
+
 function normalizeEndpoint(base: string): string {
   const trimmed = base.trim().replace(/\/+$/, "");
   if (trimmed.endsWith("/mcp")) {
@@ -52,18 +58,148 @@ export class FoundationMcpAdapter {
     this.fetchFn = options?.fetchFn ?? fetch;
   }
 
-  async invoke(plan: FoundationCallPlan): Promise<FoundationCallResult> {
-    const endpointBase = this.endpoints[plan.mcp];
-    if (!endpointBase) {
-      return {
-        ...plan,
-        status: "skipped",
-        latency_ms: 0,
-        error: `No endpoint configured for foundation MCP '${plan.mcp}'.`
-      };
+  private async parseResponseBody(response: Response): Promise<unknown> {
+    const bodyText = await response.text();
+    if (!bodyText || bodyText.trim().length === 0) {
+      return {};
     }
 
-    const endpoint = normalizeEndpoint(endpointBase);
+    const contentType = response.headers.get("content-type") ?? "";
+    if (contentType.includes("text/event-stream")) {
+      const dataLine = bodyText
+        .split(/\r?\n/)
+        .find((line) => line.startsWith("data: "));
+      if (dataLine) {
+        try {
+          return JSON.parse(dataLine.slice(6));
+        } catch {
+          return { parse_error: "SSE payload was not valid JSON", raw: bodyText };
+        }
+      }
+      return { parse_error: "SSE payload did not include a data line", raw: bodyText };
+    }
+
+    try {
+      return JSON.parse(bodyText);
+    } catch {
+      return { parse_error: "Response was not JSON", raw: bodyText };
+    }
+  }
+
+  private async invokeMcpJsonRpc(endpoint: string, plan: FoundationCallPlan): Promise<FoundationCallResult> {
+    const controller = new AbortController();
+    const startedAt = Date.now();
+    const timeoutHandle = setTimeout(() => controller.abort(), this.timeoutMs);
+
+    try {
+      const initResponse = await this.fetchFn(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json, text/event-stream"
+        },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "initialize",
+          params: {
+            protocolVersion: MCP_PROTOCOL_VERSION,
+            capabilities: {},
+            clientInfo: ADAPTER_CLIENT_INFO
+          }
+        }),
+        signal: controller.signal
+      });
+      const initPayload = await this.parseResponseBody(initResponse);
+      const sessionId = initResponse.headers.get("mcp-session-id") ?? undefined;
+
+      if (!initResponse.ok) {
+        clearTimeout(timeoutHandle);
+        return {
+          ...plan,
+          status: "error",
+          endpoint,
+          http_status: initResponse.status,
+          latency_ms: Date.now() - startedAt,
+          error: `MCP initialize failed (HTTP ${initResponse.status})`,
+          response: initPayload
+        };
+      }
+
+      const callHeaders: Record<string, string> = {
+        "Content-Type": "application/json",
+        Accept: "application/json, text/event-stream"
+      };
+      if (sessionId) {
+        callHeaders["Mcp-Session-Id"] = sessionId;
+      }
+
+      const callResponse = await this.fetchFn(endpoint, {
+        method: "POST",
+        headers: callHeaders,
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 2,
+          method: "tools/call",
+          params: {
+            name: plan.tool,
+            arguments: plan.params
+          }
+        }),
+        signal: controller.signal
+      });
+      const callPayload = await this.parseResponseBody(callResponse);
+
+      if (sessionId) {
+        void this.fetchFn(endpoint, {
+          method: "DELETE",
+          headers: {
+            Accept: "application/json, text/event-stream",
+            "Mcp-Session-Id": sessionId
+          }
+        }).catch(() => undefined);
+      }
+
+      clearTimeout(timeoutHandle);
+      const latency = Date.now() - startedAt;
+      const parsedCall = callPayload as { result?: unknown; error?: unknown } | undefined;
+
+      if (!callResponse.ok || parsedCall?.error) {
+        return {
+          ...plan,
+          status: "error",
+          endpoint,
+          http_status: callResponse.status,
+          latency_ms: latency,
+          error:
+            parsedCall?.error && typeof parsedCall.error === "object"
+              ? "MCP tools/call returned error"
+              : `MCP tools/call failed (HTTP ${callResponse.status})`,
+          response: callPayload
+        };
+      }
+
+      return {
+        ...plan,
+        status: "success",
+        endpoint,
+        http_status: callResponse.status,
+        latency_ms: latency,
+        response: parsedCall?.result ?? callPayload
+      };
+    } catch (error) {
+      clearTimeout(timeoutHandle);
+      return {
+        ...plan,
+        status: "error",
+        endpoint,
+        latency_ms: Date.now() - startedAt,
+        error: error instanceof Error ? error.message : "Unknown MCP JSON-RPC request error"
+      };
+    }
+  }
+
+  private async invokeLegacyToolPayload(endpoint: string, plan: FoundationCallPlan): Promise<FoundationCallResult> {
     const controller = new AbortController();
     const startedAt = Date.now();
     const timeoutHandle = setTimeout(() => controller.abort(), this.timeoutMs);
@@ -80,16 +216,8 @@ export class FoundationMcpAdapter {
         }),
         signal: controller.signal
       });
-
+      const parsedBody = await this.parseResponseBody(response);
       clearTimeout(timeoutHandle);
-      const latency = Date.now() - startedAt;
-
-      let parsedBody: unknown;
-      try {
-        parsedBody = await response.json();
-      } catch {
-        parsedBody = { parse_error: "Response was not JSON" };
-      }
 
       if (!response.ok) {
         return {
@@ -97,8 +225,8 @@ export class FoundationMcpAdapter {
           status: "error",
           endpoint,
           http_status: response.status,
-          latency_ms: latency,
-          error: `HTTP ${response.status}`,
+          latency_ms: Date.now() - startedAt,
+          error: `Legacy tool payload failed (HTTP ${response.status})`,
           response: parsedBody
         };
       }
@@ -108,7 +236,7 @@ export class FoundationMcpAdapter {
         status: "success",
         endpoint,
         http_status: response.status,
-        latency_ms: latency,
+        latency_ms: Date.now() - startedAt,
         response: parsedBody
       };
     } catch (error) {
@@ -118,9 +246,41 @@ export class FoundationMcpAdapter {
         status: "error",
         endpoint,
         latency_ms: Date.now() - startedAt,
-        error: error instanceof Error ? error.message : "Unknown foundation MCP request error"
+        error: error instanceof Error ? error.message : "Unknown legacy foundation MCP request error"
       };
     }
+  }
+
+  async invoke(plan: FoundationCallPlan): Promise<FoundationCallResult> {
+    const endpointBase = this.endpoints[plan.mcp];
+    if (!endpointBase) {
+      return {
+        ...plan,
+        status: "skipped",
+        latency_ms: 0,
+        error: `No endpoint configured for foundation MCP '${plan.mcp}'.`
+      };
+    }
+
+    const endpoint = normalizeEndpoint(endpointBase);
+    const mcpAttempt = await this.invokeMcpJsonRpc(endpoint, plan);
+    if (mcpAttempt.status === "success") {
+      return mcpAttempt;
+    }
+
+    const legacyAttempt = await this.invokeLegacyToolPayload(endpoint, plan);
+    if (legacyAttempt.status === "success") {
+      return legacyAttempt;
+    }
+
+    return {
+      ...legacyAttempt,
+      error: [mcpAttempt.error, legacyAttempt.error].filter(Boolean).join(" | "),
+      response: {
+        mcp_jsonrpc: mcpAttempt.response,
+        legacy_tool_payload: legacyAttempt.response
+      }
+    };
   }
 
   async invokeAll(plans: FoundationCallPlan[]): Promise<FoundationCallResult[]> {

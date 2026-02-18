@@ -70,7 +70,7 @@ Each tool returns the shared `{ data, metadata }` response envelope including ci
 - cross-border support via `additional_context.countries` (for multi-country operator profiles)
 - clause-level jurisdiction assertion packs (EU core + country overlays + US federal + state overlays)
 - topic/directive/citation metadata on each obligation assertion
-- global technical exact-reference assertions (3GPP TS 33.501, ETSI TS 103 120, RFC 7258, GSMA NESAS/SCAS, ISO 27001 A.5.33, RFC 8224, ISO 27701, NIST SP 800-61r2, RFC 9325) across all supported jurisdictions
+- global technical exact-reference assertions (3GPP TS 33.501, ETSI TS 103 120, RFC 7258, GSMA NESAS/SCAS, ISO 27001 A.5.33 bridge, RFC 8224, ISO 27701, NIST SP 800-61r3, RFC 9325) across all supported jurisdictions
 - conflict detection across overlapping jurisdictions with strictest-directive recommendation
 - optional exact-reference resolution flow for clause packs (`resolve_exact_references: true`) via foundation MCP joins
 - optional persistence when resolving exact references (`persist_exact_references: true`)
@@ -161,13 +161,24 @@ npm run dev:http
 HTTP endpoints:
 
 - `GET /health`
-- `GET /mcp` (usage metadata)
-- `POST /mcp` with payload:
+- `POST /mcp` (MCP Streamable HTTP JSON-RPC)
+- `DELETE /mcp` (session termination)
+
+Initialize request example:
 
 ```json
 {
-  "tool": "about",
-  "arguments": {}
+  "jsonrpc": "2.0",
+  "method": "initialize",
+  "params": {
+    "protocolVersion": "2025-03-26",
+    "capabilities": {},
+    "clientInfo": {
+      "name": "audit-client",
+      "version": "1.0.0"
+    }
+  },
+  "id": 1
 }
 ```
 
@@ -177,9 +188,14 @@ Tests include:
 
 - baseline domain tests in `test/telecommunications.spec.ts`
 - full 24-case telecom sampling harness aligned to MCP 5 Phase 2.3 in `test/telecommunications-sampling-24.spec.ts`
+- golden contract fixtures in `fixtures/golden-tests.json` validated by `test/golden-contract.spec.ts`
+- dataset fingerprint drift check in `fixtures/golden-hashes.json`
 
 ```bash
 npm test
+npm run test:contract
+npm run check:golden-hashes
+npm run check-source-updates
 ```
 
 ## Notes

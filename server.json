@@ -1,0 +1,18 @@
+{
+  "name": "eu.ansvar/telecommunications-mcp",
+  "description": "Telecommunications MCP for 5G, telecom security, privacy, lawful intercept, and compliance intelligence across Europe and the United States.",
+  "version": "1.0.0",
+  "repository": "https://github.com/Ansvar-Systems/Telecommunications-mcp",
+  "license": "MIT",
+  "runtime": "node",
+  "transports": ["stdio", "streamable-http"],
+  "npmPackage": "@ansvar/telecommunications-mcp",
+  "stdio": {
+    "command": "npx",
+    "args": ["@ansvar/telecommunications-mcp"]
+  },
+  "http": {
+    "path": "/mcp",
+    "healthPath": "/health"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "dataset_version": "1.0.0",
+  "dataset_fingerprint": "sha256:68aa17399a057f39c5cef1dc624ea9f251661ba6f99cb3509a7ef8d1421b9656",
+  "generated_at": "2026-02-18",
+  "hash_scope": [
+    "architecturePatterns",
+    "dataCategories",
+    "threatScenarios",
+    "technicalStandards",
+    "applicabilityRules",
+    "evidenceArtifacts",
+    "authoritativeSources"
+  ]
+}

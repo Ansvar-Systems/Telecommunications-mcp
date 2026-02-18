@@ -68,6 +68,17 @@ sources:
       method: manual-curation
       notes: Used for US telecom obligations baseline.
 
+  - id: src-atis
+    name: ATIS
+    content: STIR/SHAKEN governance and implementation standards
+    source_type: standards
+    url: https://www.atis.org/
+    license: Standards access varies by publication
+    refresh_cadence: Per publication
+    provenance:
+      method: manual-curation
+      notes: Used for STIR/SHAKEN standards lineage and implementation references.
+
   - id: src-oran
     name: O-RAN Alliance
     content: Open RAN security specifications
@@ -89,3 +100,69 @@ sources:
     provenance:
       method: manual-curation
       notes: Used for US implementation guidance mapping.
+
+  - id: src-eur-lex
+    name: EUR-Lex
+    content: Official EU legal texts (EECC, NIS2, GDPR, ePrivacy)
+    source_type: regulation
+    url: https://eur-lex.europa.eu/
+    license: EU Open Data
+    refresh_cadence: Continuous
+    provenance:
+      method: manual-curation
+      notes: Primary source for CELEX-backed EU legal references.
+
+  - id: src-ecfr
+    name: eCFR
+    content: US Code of Federal Regulations references for telecom obligations
+    source_type: regulation
+    url: https://www.ecfr.gov/
+    license: Public domain
+    refresh_cadence: Daily
+    provenance:
+      method: manual-curation
+      notes: Primary source for CFR references such as CPNI and STIR/SHAKEN.
+
+  - id: src-uscode
+    name: US Code (House of Representatives)
+    content: Federal statutory references such as CALEA and ECPA/SCA
+    source_type: regulation
+    url: https://uscode.house.gov/
+    license: Public domain
+    refresh_cadence: Continuous
+    provenance:
+      method: manual-curation
+      notes: Primary source for USC citations used in telecom legal mappings.
+
+  - id: src-rfc-editor
+    name: RFC Editor
+    content: IETF RFCs used in telecom security and privacy mappings
+    source_type: standards
+    url: https://www.rfc-editor.org/
+    license: IETF Trust
+    refresh_cadence: Per publication
+    provenance:
+      method: manual-curation
+      notes: Primary source for RFC 7258, RFC 8224, and RFC 9325 references.
+
+  - id: src-iso
+    name: ISO
+    content: ISO/IEC standards metadata used for telecom control mappings
+    source_type: standards
+    url: https://www.iso.org/
+    license: Licensed standards text
+    refresh_cadence: Per revision
+    provenance:
+      method: manual-curation
+      notes: Source for ISO/IEC 27001 and ISO/IEC 27701 references.
+
+  - id: src-itu
+    name: ITU-T
+    content: Telecommunications security recommendations (for example X.805 architecture guidance)
+    source_type: standards
+    url: https://www.itu.int/
+    license: ITU publication terms
+    refresh_cadence: Per recommendation update
+    provenance:
+      method: manual-curation
+      notes: Source for ITU-T telecom security architecture references.

@@ -1,0 +1,36 @@
+name: security-socket
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 3 * * 1"
+
+concurrency:
+  group: socket-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  socket:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: install-socket-cli
+        run: pip install socketsecurity
+      - name: scan-dependencies
+        if: ${{ secrets.SOCKET_SECURITY_API_KEY != '' }}
+        env:
+          SOCKET_SECURITY_API_KEY: ${{ secrets.SOCKET_SECURITY_API_KEY }}
+        run: |
+          socketcli --repo ${{ github.repository }} --branch ${{ github.ref_name }} .
+      - name: missing-socket-api-key
+        if: ${{ secrets.SOCKET_SECURITY_API_KEY == '' }}
+        run: echo "SOCKET_SECURITY_API_KEY is not configured; skipping Socket scan."
