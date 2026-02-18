@@ -444,6 +444,26 @@ describe("Telecommunications MCP domain service", () => {
     db.close();
   });
 
+  it("maps routing security topic language into security_risk_management comparison", () => {
+    const { service, db } = createService();
+    const result = service.compareJurisdictions("route leak and RPKI validation", ["SE", "US"]);
+
+    expect(result.normalized_topic).toBe("security_risk_management");
+    expect(result.comparison_matrix).toHaveLength(2);
+
+    db.close();
+  });
+
+  it("maps DNS privacy shorthand into traffic_location_privacy comparison", () => {
+    const { service, db } = createService();
+    const result = service.compareJurisdictions("DoH and QNAME minimization", ["SE", "US"]);
+
+    expect(result.normalized_topic).toBe("traffic_location_privacy");
+    expect(result.comparison_matrix).toHaveLength(2);
+
+    db.close();
+  });
+
   it("compares lawful intercept topic via clause assertions with quality markers", () => {
     const { service, db } = createService();
     const result = service.compareJurisdictions("lawful intercept", ["SE", "US-CA"]);

@@ -2907,7 +2907,15 @@ export class TelecomDomainService {
     if (topic.includes("5g") || topic.includes("vendor")) {
       return undefined;
     }
-    if (topic.includes("security") || topic.includes("risk")) {
+    if (
+      topic.includes("security") ||
+      topic.includes("risk") ||
+      topic.includes("routing") ||
+      topic.includes("route leak") ||
+      topic.includes("rpki") ||
+      topic.includes("rov") ||
+      topic.includes("bgp")
+    ) {
       return "security_risk_management";
     }
     if (topic.includes("incident") || topic.includes("breach")) {
@@ -2916,7 +2924,15 @@ export class TelecomDomainService {
     if (topic.includes("subscriber") || topic.includes("cpni")) {
       return "subscriber_privacy";
     }
-    if (topic.includes("traffic") || topic.includes("location") || topic.includes("metadata") || topic.includes("dns")) {
+    if (
+      topic.includes("traffic") ||
+      topic.includes("location") ||
+      topic.includes("metadata") ||
+      topic.includes("dns") ||
+      topic.includes("doh") ||
+      topic.includes("dot") ||
+      topic.includes("qname")
+    ) {
       return "traffic_location_privacy";
     }
     if (topic.includes("intercept") || topic.includes("lawful")) {
@@ -2928,7 +2944,14 @@ export class TelecomDomainService {
     if (topic.includes("supply")) {
       return "supply_chain";
     }
-    if (topic.includes("caller") || topic.includes("robocall") || topic.includes("spoof")) {
+    if (
+      topic.includes("caller") ||
+      topic.includes("robocall") ||
+      topic.includes("spoof") ||
+      topic.includes("stir") ||
+      topic.includes("shaken") ||
+      topic.includes("passport")
+    ) {
       return "caller_id_authentication";
     }
     return undefined;
