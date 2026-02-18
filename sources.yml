@@ -1,0 +1,91 @@
+version: 1.0.0
+domain: telecommunications
+last_updated: 2026-02-18
+sources:
+  - id: src-3gpp
+    name: 3GPP
+    content: 5G security specifications (TS 33.xxx)
+    source_type: standards
+    url: https://www.3gpp.org/
+    license: Free access
+    refresh_cadence: Per release
+    provenance:
+      method: manual-curation
+      notes: Referenced as canonical 5G security architecture source.
+
+  - id: src-etsi
+    name: ETSI
+    content: NFV security, LI standards, MEC
+    source_type: standards
+    url: https://www.etsi.org/
+    license: Free access
+    refresh_cadence: Per publication
+    provenance:
+      method: manual-curation
+      notes: Used for NFV/LI/MEC crosswalk and standards mappings.
+
+  - id: src-gsma
+    name: GSMA
+    content: NESAS/SCAS, FS.31, telecom security guidance
+    source_type: industry
+    url: https://www.gsma.com/
+    license: Membership with public summaries
+    refresh_cadence: Per update
+    provenance:
+      method: manual-curation
+      notes: Used for 5G baseline controls and vendor assurance mapping.
+
+  - id: src-enisa
+    name: ENISA
+    content: 5G threat landscape and EU 5G toolbox
+    source_type: regulatory-guidance
+    url: https://www.enisa.europa.eu/
+    license: Free access (EU)
+    refresh_cadence: Per publication
+    provenance:
+      method: manual-curation
+      notes: Used for NIS2/5G toolbox obligations and risk measures.
+
+  - id: src-berec
+    name: BEREC
+    content: EECC implementation guidance and roaming
+    source_type: regulatory-guidance
+    url: https://www.berec.europa.eu/
+    license: Free access
+    refresh_cadence: Per publication
+    provenance:
+      method: manual-curation
+      notes: Used for EECC and roaming interpretation context.
+
+  - id: src-fcc
+    name: FCC
+    content: CALEA, STIR/SHAKEN, telecom rules
+    source_type: regulation
+    url: https://www.fcc.gov/
+    license: Public domain
+    refresh_cadence: Per publication
+    provenance:
+      method: manual-curation
+      notes: Used for US telecom obligations baseline.
+
+  - id: src-oran
+    name: O-RAN Alliance
+    content: Open RAN security specifications
+    source_type: standards
+    url: https://www.o-ran.org/
+    license: Membership with public summaries
+    refresh_cadence: Per release
+    provenance:
+      method: manual-curation
+      notes: Used for RIC and open RAN threat/standard mapping.
+
+  - id: src-nist
+    name: NIST
+    content: SP 1800-33 and related telecom security guidance
+    source_type: standards
+    url: https://www.nist.gov/
+    license: Public domain
+    refresh_cadence: Per revision
+    provenance:
+      method: manual-curation
+      notes: Used for US implementation guidance mapping.

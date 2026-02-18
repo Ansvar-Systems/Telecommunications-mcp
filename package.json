@@ -1,0 +1,43 @@
+{
+  "name": "@ansvar/telecommunications-mcp",
+  "version": "1.0.0",
+  "description": "Telecommunications domain MCP for 5G/NFV/telecom compliance intelligence",
+  "type": "module",
+  "main": "dist/mcp/stdio.js",
+  "bin": {
+    "telecommunications-mcp": "dist/mcp/stdio.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && cp src/db/schema.sql dist/db/schema.sql",
+    "dev": "tsx src/mcp/stdio.ts",
+    "dev:http": "tsx src/server/http.ts",
+    "start": "node dist/mcp/stdio.js",
+    "start:http": "node dist/server/http.js",
+    "test": "vitest run",
+    "quality:expertise": "node --import tsx scripts/expertise-audit.ts",
+    "quality:exact-backlog": "node --import tsx scripts/promote-exact-references.ts --dry-run"
+  },
+  "keywords": [
+    "mcp",
+    "telecommunications",
+    "5g",
+    "nis2",
+    "security"
+  ],
+  "author": "Ansvar Systems Engineering",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.4",
+    "better-sqlite3": "^11.8.1",
+    "express": "^4.21.2",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.13.10",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.8"
+  }
+}
