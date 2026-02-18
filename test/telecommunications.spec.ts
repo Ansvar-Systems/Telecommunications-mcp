@@ -506,6 +506,20 @@ describe("Telecommunications MCP domain service", () => {
     db.close();
   });
 
+  it("includes routing and DNS privacy exact-reference standards in jurisdiction packs", () => {
+    const { service, db } = createService();
+    const pack = service.getJurisdictionClausePack("SE");
+
+    expect(pack.assertions.some((entry) => entry.standard_id === "ietf-rfc-3704")).toBe(true);
+    expect(pack.assertions.some((entry) => entry.standard_id === "ietf-rfc-6811")).toBe(true);
+    expect(pack.assertions.some((entry) => entry.standard_id === "ietf-rfc-9234")).toBe(true);
+    expect(pack.assertions.some((entry) => entry.standard_id === "ietf-rfc-7858")).toBe(true);
+    expect(pack.assertions.some((entry) => entry.standard_id === "ietf-rfc-8484")).toBe(true);
+    expect(pack.assertions.some((entry) => entry.standard_id === "ietf-rfc-9156")).toBe(true);
+
+    db.close();
+  });
+
   it("detects cross-jurisdiction directive conflicts and recommends strictest baseline", () => {
     const { service, db } = createService();
     const result = service.assessApplicability({

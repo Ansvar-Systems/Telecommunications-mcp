@@ -218,6 +218,41 @@ const CITATIONS = {
     type: "RFC" as const,
     ref: "RFC 9325",
     source_url: "https://www.rfc-editor.org/rfc/rfc9325"
+  },
+  rfc3704: {
+    type: "RFC" as const,
+    ref: "RFC 3704 / RFC 8704",
+    source_url: "https://www.rfc-editor.org/rfc/rfc3704"
+  },
+  rfc6480: {
+    type: "RFC" as const,
+    ref: "RFC 6480",
+    source_url: "https://www.rfc-editor.org/rfc/rfc6480"
+  },
+  rfc6811: {
+    type: "RFC" as const,
+    ref: "RFC 6811",
+    source_url: "https://www.rfc-editor.org/rfc/rfc6811"
+  },
+  rfc9234: {
+    type: "RFC" as const,
+    ref: "RFC 9234",
+    source_url: "https://www.rfc-editor.org/rfc/rfc9234"
+  },
+  rfc7858: {
+    type: "RFC" as const,
+    ref: "RFC 7858",
+    source_url: "https://www.rfc-editor.org/rfc/rfc7858"
+  },
+  rfc8484: {
+    type: "RFC" as const,
+    ref: "RFC 8484",
+    source_url: "https://www.rfc-editor.org/rfc/rfc8484"
+  },
+  rfc9156: {
+    type: "RFC" as const,
+    ref: "RFC 9156",
+    source_url: "https://www.rfc-editor.org/rfc/rfc9156"
   }
 };
 
@@ -270,6 +305,54 @@ function globalTechnicalAssertions(jurisdictionKey: string): ClauseAssertion[] {
       standard_id: "rfc-7258",
       trigger: {
         requires_personal_data: true
+      }
+    },
+    {
+      id: `std-rfc3704-anti-spoofing-${safeKey}`,
+      regulation_id: "RFC 3704 / RFC 8704",
+      article_or_section: "BCP 38/84 ingress filtering recommendations",
+      topic: "security_risk_management",
+      directive: "required",
+      summary:
+        "Access and peering edges should implement ingress filtering and anti-spoofing controls to reduce reflection/amplification and source-address abuse.",
+      confidence: "medium",
+      reference_quality: "exact",
+      citations: [CITATIONS.rfc3704],
+      standard_id: "ietf-rfc-3704",
+      trigger: {
+        requires_telecom_service: true
+      }
+    },
+    {
+      id: `std-rfc6811-rpki-${safeKey}`,
+      regulation_id: "RFC 6811 / RFC 6480",
+      article_or_section: "BGP route-origin validation with RPKI framework",
+      topic: "security_risk_management",
+      directive: "required",
+      summary:
+        "Telecom routing domains should validate route origin authorization using RPKI and defined invalid-route handling policies.",
+      confidence: "medium",
+      reference_quality: "exact",
+      citations: [CITATIONS.rfc6811, CITATIONS.rfc6480],
+      standard_id: "ietf-rfc-6811",
+      trigger: {
+        requires_telecom_service: true
+      }
+    },
+    {
+      id: `std-rfc9234-route-leak-${safeKey}`,
+      regulation_id: "RFC 9234",
+      article_or_section: "Route leak prevention and detection (roles + OTC)",
+      topic: "security_risk_management",
+      directive: "required",
+      summary:
+        "Inter-domain routing controls should include route-leak prevention signaling and role-aware policy validation at peering/transit boundaries.",
+      confidence: "medium",
+      reference_quality: "exact",
+      citations: [CITATIONS.rfc9234],
+      standard_id: "ietf-rfc-9234",
+      trigger: {
+        requires_telecom_service: true
       }
     },
     {
@@ -332,6 +415,54 @@ function globalTechnicalAssertions(jurisdictionKey: string): ClauseAssertion[] {
       reference_quality: "exact",
       citations: [CITATIONS.iso27701],
       standard_id: "iso-27701",
+      trigger: {
+        requires_personal_data: true
+      }
+    },
+    {
+      id: `std-rfc7858-dot-${safeKey}`,
+      regulation_id: "RFC 7858",
+      article_or_section: "DNS over TLS transport confidentiality profile",
+      topic: "traffic_location_privacy",
+      directive: "conditional",
+      summary:
+        "Where subscriber DNS processing is in scope, operators should use encrypted resolver transport to reduce passive metadata interception.",
+      confidence: "medium",
+      reference_quality: "exact",
+      citations: [CITATIONS.rfc7858],
+      standard_id: "ietf-rfc-7858",
+      trigger: {
+        requires_personal_data: true
+      }
+    },
+    {
+      id: `std-rfc8484-doh-${safeKey}`,
+      regulation_id: "RFC 8484",
+      article_or_section: "DNS over HTTPS message exchange profile",
+      topic: "traffic_location_privacy",
+      directive: "conditional",
+      summary:
+        "Controlled DoH deployments should be used with policy and transparency safeguards to strengthen subscriber DNS confidentiality.",
+      confidence: "medium",
+      reference_quality: "exact",
+      citations: [CITATIONS.rfc8484],
+      standard_id: "ietf-rfc-8484",
+      trigger: {
+        requires_personal_data: true
+      }
+    },
+    {
+      id: `std-rfc9156-qname-${safeKey}`,
+      regulation_id: "RFC 9156",
+      article_or_section: "DNS query name minimisation guidance",
+      topic: "traffic_location_privacy",
+      directive: "required",
+      summary:
+        "Recursive resolver operations should minimize upstream DNS label disclosure to reduce unnecessary exposure of subscriber metadata.",
+      confidence: "medium",
+      reference_quality: "exact",
+      citations: [CITATIONS.rfc9156],
+      standard_id: "ietf-rfc-9156",
       trigger: {
         requires_personal_data: true
       }

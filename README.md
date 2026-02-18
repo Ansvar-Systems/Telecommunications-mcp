@@ -70,7 +70,7 @@ Each tool returns the shared `{ data, metadata }` response envelope including ci
 - cross-border support via `additional_context.countries` (for multi-country operator profiles)
 - clause-level jurisdiction assertion packs (EU core + country overlays + US federal + state overlays)
 - topic/directive/citation metadata on each obligation assertion
-- global technical exact-reference assertions (3GPP TS 33.501, ETSI TS 103 120, RFC 7258, GSMA NESAS/SCAS, ISO 27001 A.5.33 bridge, RFC 8224, ISO 27701, NIST SP 800-61r3, RFC 9325) across all supported jurisdictions
+- global technical exact-reference assertions (3GPP TS 33.501, ETSI TS 103 120, RFC 7258, RFC 3704/8704, RFC 6811/6480, RFC 9234, RFC 7858, RFC 8484, RFC 9156, GSMA NESAS/SCAS, ISO 27001 A.5.33 bridge, RFC 8224, ISO 27701, NIST SP 800-61r3, RFC 9325) across all supported jurisdictions
 - conflict detection across overlapping jurisdictions with strictest-directive recommendation
 - optional exact-reference resolution flow for clause packs (`resolve_exact_references: true`) via foundation MCP joins
 - optional persistence when resolving exact references (`persist_exact_references: true`)
