@@ -24,5 +24,6 @@ jobs:
       - run: npm test
       - run: npm run test:contract
       - run: npm run quality:expertise
+      - run: npm run quality:prod-ready
       - run: npm run check-source-updates
       - run: npm run check:golden-hashes

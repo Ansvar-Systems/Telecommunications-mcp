@@ -464,6 +464,27 @@ describe("Telecommunications MCP domain service", () => {
     db.close();
   });
 
+  it("searches domain knowledge using indexed content types", () => {
+    const { service, db } = createService();
+    const result = service.searchDomainKnowledge("SEPP signaling protection", "architecture_patterns", 5);
+
+    expect(result.match_status).toBe("matched");
+    expect(result.results.length).toBeGreaterThan(0);
+    expect(result.results.every((row) => row.content_type === "architecture_patterns")).toBe(true);
+
+    db.close();
+  });
+
+  it("returns not-indexed marker for unsupported content types in search", () => {
+    const { service, db } = createService();
+    const result = service.searchDomainKnowledge("SEPP", "evidence_artifacts", 5);
+
+    expect(result.match_status).toBe("not_indexed_content_type");
+    expect(result.results).toHaveLength(0);
+
+    db.close();
+  });
+
   it("compares lawful intercept topic via clause assertions with quality markers", () => {
     const { service, db } = createService();
     const result = service.compareJurisdictions("lawful intercept", ["SE", "US-CA"]);
@@ -501,6 +522,30 @@ describe("Telecommunications MCP domain service", () => {
     expect(baseline.controls.length).toBeGreaterThan(0);
     expect(baseline.controls.map((control) => control.control_id)).toContain("ctrl-risk-mgmt");
     expect(baseline.controls.map((control) => control.control_id)).toContain("ctrl-privacy-governance");
+
+    db.close();
+  });
+
+  it("supports compact vs full detail levels for telecom expert briefs", () => {
+    const { service, db } = createService();
+    const baseInput = {
+      country: "SE",
+      role: "mobile_operator" as const,
+      size: "large" as const,
+      architecture_patterns: ["tc-5g-core", "tc-edge"],
+      data_types: ["subscriber_data", "traffic_metadata"],
+      service_types: ["voice", "data", "5g"]
+    };
+
+    const compact = service.buildTelecomExpertBrief({ ...baseInput, detail_level: "compact" });
+    const full = service.buildTelecomExpertBrief({ ...baseInput, detail_level: "full" });
+
+    expect(compact.profile.detail_level).toBe("compact");
+    expect(full.profile.detail_level).toBe("full");
+    expect(compact.applicability.obligations.length).toBeLessThanOrEqual(full.applicability.obligations.length);
+    expect(compact.control_baseline.controls.length).toBeLessThanOrEqual(full.control_baseline.controls.length);
+    expect(compact.evidence_plan.evidence_items.length).toBeLessThanOrEqual(full.evidence_plan.evidence_items.length);
+    expect(compact.detection_playbooks.playbooks.length).toBeLessThanOrEqual(full.detection_playbooks.playbooks.length);
 
     db.close();
   });

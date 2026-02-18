@@ -33,8 +33,8 @@ Server type: Domain intelligence MCP (Telecommunications), unlisted in Section 0
 - PASS: Malformed input handling returns MCP-compliant `-32602` validation errors (runtime probe).
 - PASS: SQLi-style and 12k-character inputs degrade safely without crashes (runtime probe).
 - PASS: Query and persistence operations use parameterized statements (`src/db/database.ts` prepared statements).
-- WARNING: Response size for complex tools is high (`build_telecom_expert_brief` ~9.6k estimated tokens); no detail-level control.
-- WARNING: FTS tables exist but `search_domain_knowledge` is currently in-memory keyword search rather than FTS `MATCH`.
+- PASS: `build_telecom_expert_brief` now supports `detail_level` (`compact|standard|full`) to control payload size.
+- PASS: `search_domain_knowledge` now uses FTS5 `MATCH` with keyword fallback and explicit match-state markers.
 - FAIL (strict serverless rubric): SQLite runtime is still `better-sqlite3` (`package.json:35`) rather than `node-sqlite3-wasm`.
 - PASS: Journal mode corrected to `DELETE` for serverless lock-file behavior (`src/db/database.ts:39`).
 
@@ -42,6 +42,7 @@ Server type: Domain intelligence MCP (Telecommunications), unlisted in Section 0
 
 - PASS: README, CHANGELOG, `sources.yml` now present (`README.md`, `CHANGELOG.md`, `sources.yml`).
 - PASS: CI workflow added with tests + quality gates (`.github/workflows/ci.yml`).
+- PASS: Consolidated production-readiness gate script added and enforced in CI (`scripts/prod-readiness.ts`, `npm run quality:prod-ready`).
 - PASS: Publish workflow on `v*` tags with provenance (`.github/workflows/publish.yml`).
 - PASS: Source freshness workflow added (`.github/workflows/check-source-updates.yml`).
 - PASS: Six security-layer workflow set added:
@@ -107,11 +108,11 @@ Checked with live MCP outputs and authoritative references:
 
 | Category | Score (0-100) | Notes |
 |---|---:|---|
-| Agent-Readiness | 88 | Strong tool surface and validation; schema-description depth still limited. |
-| Data Accuracy | 88 | Broad coverage, strong citation completeness; manual curation freshness risk remains. |
-| Optimization | 83 | Robust errors and transport; large payload tools and non-FTS search path reduce efficiency. |
-| Deployment Maturity | 84 | CI/security/registry artifacts now present; workflow runtime history not yet demonstrated. |
-| Overall Grade | **B+** | Production-capable with remaining hardening items. |
+| Agent-Readiness | 91 | Strong tool surface and validation; schema-description depth still limited on some tools. |
+| Data Accuracy | 90 | Broad coverage, strong citation completeness; manual curation freshness risk remains. |
+| Optimization | 90 | FTS-backed search and response size controls now in place for major high-volume workflow. |
+| Deployment Maturity | 89 | CI/security/registry artifacts and explicit prod-ready gate now present; workflow runtime history not yet demonstrated. |
+| Overall Grade | **A-** | Production-ready for domain-intelligence deployment with one strict-runtime gap remaining. |
 
 ---
 
@@ -124,14 +125,14 @@ Checked with live MCP outputs and authoritative references:
 
 1. Migrate SQLite runtime to `node-sqlite3-wasm` for serverless parity.
 2. Add parameter descriptions/examples for every tool input field in MCP schemas.
-3. Add output-size controls (`detail_level`, pagination) for high-volume tools.
-4. Refactor `search_domain_knowledge` to FTS `MATCH` over seeded FTS tables.
-5. Expand automated freshness verification for standards catalogs (beyond metadata recency checks).
-6. Add live integration tests for HTTP MCP initialize/tools/list/tools/call in CI.
-7. Add drift monitor that validates key citations against authoritative URLs on schedule.
-8. Add explicit response markers distinguishing `not indexed` vs `no match`.
-9. Add runtime metrics for request latency and payload size by tool.
-10. Add CI gate enforcing minimum tool-schema description quality.
+3. Expand automated freshness verification for standards catalogs (beyond metadata recency checks).
+4. Add live integration tests for HTTP MCP initialize/tools/list/tools/call in CI.
+5. Add drift monitor that validates key citations against authoritative URLs on schedule.
+6. Add runtime metrics for request latency and payload size by tool.
+7. Add CI gate enforcing minimum tool-schema description quality.
+8. Add periodic source sampling automation against primary authorities for high-volatility references.
+9. Add per-tool schema lint checks for parameter description completeness.
+10. Add optional telemetry export for operational SLO monitoring.
 
 ## Risk Assessment
 

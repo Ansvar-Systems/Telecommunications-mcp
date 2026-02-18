@@ -418,7 +418,11 @@ export function createTelecommunicationsMcpServer(
       size: z.enum(["small", "medium", "large"]).optional(),
       deployment_context: z.string().optional(),
       additional_context: z.record(z.unknown()).optional(),
-      audit_type: z.string().optional()
+      audit_type: z.string().optional(),
+      detail_level: z
+        .enum(["compact", "standard", "full"])
+        .default("standard")
+        .describe("Controls response size and depth. Use compact for token-safe summaries, full for maximum detail.")
     },
     async (args: {
       country: string;
@@ -431,6 +435,7 @@ export function createTelecommunicationsMcpServer(
       deployment_context?: string;
       additional_context?: Record<string, unknown>;
       audit_type?: string;
+      detail_level: "compact" | "standard" | "full";
     }) => {
       const brief = service.buildTelecomExpertBrief(args);
       const foundationCalls = buildFoundationCallsForApplicability(
@@ -673,11 +678,25 @@ export function createTelecommunicationsMcpServer(
     "search_domain_knowledge",
     "Search architecture, data taxonomy, threat catalog and standards",
     {
-      query: z.string(),
-      content_type: z.string().optional(),
-      limit: z.number().int().min(1).max(25).default(10)
+      query: z
+        .string()
+        .min(1)
+        .describe("Free-text telecom query (for example: 'SEPP signaling protection', 'RPKI route validation')."),
+      content_type: z
+        .enum(["architecture_patterns", "data_categories", "threat_scenarios", "technical_standards"])
+        .optional()
+        .describe("Optional indexed content filter."),
+      limit: z.number().int().min(1).max(25).default(10).describe("Maximum number of results to return (1-25).")
     },
-    async ({ query, content_type, limit }: { query: string; content_type?: string; limit: number }) =>
+    async ({
+      query,
+      content_type,
+      limit
+    }: {
+      query: string;
+      content_type?: "architecture_patterns" | "data_categories" | "threat_scenarios" | "technical_standards";
+      limit: number;
+    }) =>
       mcpPayload(
         withMeta(
           service,

@@ -208,7 +208,9 @@ export class TelecomToolDispatcher {
             size: (args.size as "small" | "medium" | "large" | undefined) ?? "medium",
             deployment_context: args.deployment_context as string | undefined,
             additional_context: (args.additional_context as Record<string, unknown> | undefined) ?? {},
-            audit_type: args.audit_type as string | undefined
+            audit_type: args.audit_type as string | undefined,
+            detail_level:
+              (args.detail_level as "compact" | "standard" | "full" | undefined) ?? "standard"
           });
           const plans = buildFoundationCallsForApplicability(String(args.country ?? ""), brief.applicability.obligations);
           const foundation_join_results = await this.foundationAdapter.invokeAll(plans);

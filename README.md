@@ -51,7 +51,7 @@ Telecommunications-specific tools:
 - `assess_lawful_intercept_compliance`
 - `assess_data_retention_obligations`
 - `build_detection_playbook` (operational threat detection guidance)
-- `build_telecom_expert_brief` (integrated operator-ready expert package)
+- `build_telecom_expert_brief` (integrated operator-ready expert package; supports `detail_level` = `compact|standard|full`)
 - `build_threat_remediation_backlog` (threat-driven prioritized engineering actions)
 - `build_architecture_hardening_plan` (architecture-specific hardening blueprint)
 - `build_compliance_evidence_matrix` (obligation-to-evidence/control audit mapping)
@@ -77,12 +77,15 @@ Each tool returns the shared `{ data, metadata }` response envelope including ci
 
 `map_to_technical_standards` includes alias-aware expert matching for telecom shorthand and operator language (for example BCP38/uRPF, ROV, DoT/DoH, QNAME minimization, and STIR/SHAKEN PASSporT extensions).
 
+`search_domain_knowledge` uses SQLite FTS5 as primary backend with keyword fallback, and now returns explicit match status (`matched`, `no_match`, `not_indexed_content_type`, `empty_query`) so agents can distinguish no-result vs non-indexed requests.
+
 ## Expertise QA Gate
 
 Run the expertise quality gate locally/CI:
 
 ```bash
 npm run quality:expertise
+npm run quality:prod-ready
 ```
 
 Run exact-reference backlog promotion dry-run:

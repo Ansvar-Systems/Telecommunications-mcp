@@ -17,6 +17,7 @@
     "test": "vitest run",
     "test:contract": "vitest run test/golden-contract.spec.ts",
     "quality:expertise": "node --import tsx scripts/expertise-audit.ts",
+    "quality:prod-ready": "node --import tsx scripts/prod-readiness.ts",
     "quality:exact-backlog": "node --import tsx scripts/promote-exact-references.ts --dry-run",
     "check-source-updates": "node --import tsx scripts/check-source-updates.ts",
     "check:golden-hashes": "node --import tsx scripts/check-golden-hashes.ts"

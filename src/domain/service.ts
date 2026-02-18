@@ -998,8 +998,10 @@ export class TelecomDomainService {
     deployment_context?: string;
     additional_context?: Record<string, unknown>;
     audit_type?: string;
+    detail_level?: "compact" | "standard" | "full";
   }) {
     const countryKey = parseJurisdiction(input.country).key;
+    const detailLevel = input.detail_level ?? "standard";
     const dataTypes = input.data_types ?? [];
     const serviceTypes = input.service_types ?? [];
     const systemTypes = input.system_types ?? [];
@@ -1078,8 +1080,9 @@ export class TelecomDomainService {
     );
 
     const primaryPattern = architecturePatterns[0];
+    const detectionMaxItems = detailLevel === "compact" ? 4 : detailLevel === "full" ? 10 : 6;
     const detectionPlaybooks = primaryPattern
-      ? this.buildDetectionPlaybook(primaryPattern, dataTypes, input.deployment_context, 6)
+      ? this.buildDetectionPlaybook(primaryPattern, dataTypes, input.deployment_context, detectionMaxItems)
       : { context: {}, summary: { matched_threats: 0, returned_playbooks: 0 }, playbooks: [] as Array<unknown> };
 
     const scorecard = this.getJurisdictionExpertiseScorecard(countryKey);
@@ -1103,28 +1106,47 @@ export class TelecomDomainService {
       recommendedActions.push("Maintain continuous control validation and regulator-update monitoring cadence.");
     }
 
+    const obligationLimit = detailLevel === "compact" ? 12 : detailLevel === "full" ? 50 : 25;
+    const threatLimit = detailLevel === "compact" ? 6 : detailLevel === "full" ? 20 : 12;
+    const controlLimit = detailLevel === "compact" ? 12 : detailLevel === "full" ? controlBaseline.controls.length : 20;
+    const evidenceLimit = detailLevel === "compact" ? 10 : detailLevel === "full" ? evidencePlan.evidence_items.length : 20;
+
     return {
       profile: {
         country: countryKey,
         role,
         size,
         architecture_patterns: architecturePatterns,
-        deployment_context: input.deployment_context ?? null
+        deployment_context: input.deployment_context ?? null,
+        detail_level: detailLevel
       },
       entity_classification: entityClassification,
       applicability: {
-        obligations: applicability.obligations.slice(0, 25),
+        obligations: applicability.obligations.slice(0, obligationLimit),
         conflicts: applicability.conflicts,
         matched_rule_count: applicability.matched_rule_count
       },
       threat_intelligence: {
-        prioritized_threats: prioritizedThreats
+        prioritized_threats: prioritizedThreats.slice(0, threatLimit)
       },
-      control_baseline: controlBaseline,
-      evidence_plan: evidencePlan,
+      control_baseline: {
+        ...controlBaseline,
+        controls: controlBaseline.controls.slice(0, controlLimit)
+      },
+      evidence_plan: {
+        ...evidencePlan,
+        evidence_items: evidencePlan.evidence_items.slice(0, evidenceLimit)
+      },
       detection_playbooks: detectionPlaybooks,
       expertise_quality: {
-        jurisdiction_scorecard: scorecard,
+        jurisdiction_scorecard:
+          detailLevel === "compact"
+            ? {
+                summary: scorecard.summary,
+                lowest_quality: scorecard.lowest_quality,
+                highest_quality: scorecard.highest_quality
+              }
+            : scorecard,
         exact_reference_backlog: backlog.summary
       },
       recommended_actions: recommendedActions
@@ -1673,6 +1695,32 @@ export class TelecomDomainService {
   searchDomainKnowledge(query: string, contentType?: string, limit = 10) {
     const cappedLimit = Math.max(1, Math.min(limit, 25));
     const normalized = query.trim().toLowerCase();
+    const requestedContentType = contentType?.trim().toLowerCase();
+    const indexedContentTypes = [
+      "architecture_patterns",
+      "data_categories",
+      "threat_scenarios",
+      "technical_standards"
+    ] as const;
+
+    if (normalized.length === 0) {
+      return {
+        results: [],
+        search_backend: "fts5+keyword-fallback",
+        match_status: "empty_query",
+        indexed_content_types: indexedContentTypes
+      };
+    }
+
+    if (requestedContentType && !indexedContentTypes.includes(requestedContentType as (typeof indexedContentTypes)[number])) {
+      return {
+        results: [],
+        search_backend: "fts5+keyword-fallback",
+        match_status: "not_indexed_content_type",
+        unsupported_content_type: contentType,
+        indexed_content_types: indexedContentTypes
+      };
+    }
 
     type SearchResult = {
       content_type: string;
@@ -1684,6 +1732,75 @@ export class TelecomDomainService {
     };
 
     const results: SearchResult[] = [];
+    const seen = new Set<string>();
+    let fallbackUsed = false;
+
+    const pushResult = (entry: SearchResult) => {
+      const key = `${entry.content_type}:${entry.id}`;
+      if (seen.has(key)) {
+        return;
+      }
+      seen.add(key);
+      results.push(entry);
+    };
+
+    const tokenizeForFts = (value: string): string[] =>
+      value
+        .split(/[^a-z0-9]+/)
+        .map((token) => token.trim())
+        .filter((token) => token.length >= 2);
+
+    const tokens = tokenizeForFts(normalized);
+    const ftsQuery = tokens.length === 0 ? null : tokens.map((token) => `"${token}"*`).join(" OR ");
+
+    if (ftsQuery) {
+      const runFts = (
+        table: "architecture_patterns_fts" | "data_categories_fts" | "threat_scenarios_fts" | "technical_standards_fts",
+        baseTable: "architecture_patterns" | "data_categories" | "threat_scenarios" | "technical_standards",
+        snippetColumn: "description" | "scope",
+        content_type: SearchResult["content_type"],
+        source_ref: string
+      ) => {
+        if (requestedContentType && requestedContentType !== content_type) {
+          return;
+        }
+        const querySql = `
+          SELECT b.id AS id, b.name AS title, b.${snippetColumn} AS snippet, bm25(${table}) AS rank
+          FROM ${table}
+          JOIN ${baseTable} b ON b.id = ${table}.id
+          WHERE ${table} MATCH ?
+          ORDER BY rank
+          LIMIT ?
+        `;
+        const rows = this.db.prepare(querySql).all(ftsQuery, cappedLimit) as Array<{
+          id: string;
+          title: string;
+          snippet: string;
+          rank: number;
+        }>;
+
+        for (const row of rows) {
+          const score = 1 / (1 + Math.max(0, Number.isFinite(row.rank) ? row.rank : 0));
+          pushResult({
+            content_type,
+            id: row.id,
+            title: row.title,
+            snippet: row.snippet,
+            relevance_score: Number(score.toFixed(4)),
+            source_ref
+          });
+        }
+      };
+
+      try {
+        runFts("architecture_patterns_fts", "architecture_patterns", "description", "architecture_patterns", "3GPP/ETSI");
+        runFts("data_categories_fts", "data_categories", "description", "data_categories", "EECC/ePrivacy/GDPR/ECPA");
+        runFts("threat_scenarios_fts", "threat_scenarios", "description", "threat_scenarios", "Threat catalog");
+        runFts("technical_standards_fts", "technical_standards", "scope", "technical_standards", "Standards catalog");
+      } catch {
+        // Fallback path handles malformed FTS expressions and any runtime FTS issues.
+      }
+    }
 
     const addIfMatched = (
       content_type: string,
@@ -1693,7 +1810,7 @@ export class TelecomDomainService {
       snippet: string,
       source_ref: string
     ) => {
-      if (contentType && contentType.toLowerCase() !== content_type.toLowerCase()) {
+      if (requestedContentType && requestedContentType !== content_type.toLowerCase()) {
         return;
       }
       const haystack = searchable.toLowerCase();
@@ -1702,61 +1819,69 @@ export class TelecomDomainService {
         return;
       }
       const relevance = 1 / (position + 1) + Math.min(1, normalized.length / Math.max(1, haystack.length));
-      results.push({ content_type, id, title, snippet, relevance_score: Number(relevance.toFixed(4)), source_ref });
+      pushResult({ content_type, id, title, snippet, relevance_score: Number(relevance.toFixed(4)), source_ref });
     };
 
-    for (const pattern of this.patterns) {
-      addIfMatched(
-        "architecture_patterns",
-        pattern.id,
-        pattern.name,
-        `${pattern.name} ${pattern.description} ${pattern.components.join(" ")}`,
-        pattern.description,
-        "3GPP/ETSI"
-      );
+    if (results.length < cappedLimit) {
+      fallbackUsed = true;
+      for (const pattern of this.patterns) {
+        addIfMatched(
+          "architecture_patterns",
+          pattern.id,
+          pattern.name,
+          `${pattern.name} ${pattern.description} ${pattern.components.join(" ")}`,
+          pattern.description,
+          "3GPP/ETSI"
+        );
+      }
+
+      for (const category of this.categories) {
+        addIfMatched(
+          "data_categories",
+          category.id,
+          category.name,
+          `${category.name} ${category.description} ${category.boundary_conditions}`,
+          category.description,
+          "EECC/ePrivacy/GDPR/ECPA"
+        );
+      }
+
+      for (const threat of this.threats) {
+        addIfMatched(
+          "threat_scenarios",
+          threat.id,
+          threat.name,
+          `${threat.name} ${threat.description} ${threat.attack_narrative}`,
+          threat.attack_narrative,
+          "Threat catalog"
+        );
+      }
+
+      for (const standard of this.standards) {
+        addIfMatched(
+          "technical_standards",
+          standard.id,
+          standard.name,
+          `${standard.name} ${standard.scope} ${standard.implementation_guidance}`,
+          standard.scope,
+          standard.publisher
+        );
+      }
     }
 
-    for (const category of this.categories) {
-      addIfMatched(
-        "data_categories",
-        category.id,
-        category.name,
-        `${category.name} ${category.description} ${category.boundary_conditions}`,
-        category.description,
-        "EECC/ePrivacy/GDPR/ECPA"
-      );
-    }
-
-    for (const threat of this.threats) {
-      addIfMatched(
-        "threat_scenarios",
-        threat.id,
-        threat.name,
-        `${threat.name} ${threat.description} ${threat.attack_narrative}`,
-        threat.attack_narrative,
-        "Threat catalog"
-      );
-    }
-
-    for (const standard of this.standards) {
-      addIfMatched(
-        "technical_standards",
-        standard.id,
-        standard.name,
-        `${standard.name} ${standard.scope} ${standard.implementation_guidance}`,
-        standard.scope,
-        standard.publisher
-      );
-    }
+    const topResults = results
+      .sort((a, b) => b.relevance_score - a.relevance_score)
+      .slice(0, cappedLimit)
+      .map((result) => ({
+        ...result,
+        snippets: [result.snippet]
+      }));
 
     return {
-      results: results
-        .sort((a, b) => b.relevance_score - a.relevance_score)
-        .slice(0, cappedLimit)
-        .map((result) => ({
-          ...result,
-          snippets: [result.snippet]
-        }))
+      results: topResults,
+      search_backend: fallbackUsed ? "fts5+keyword-fallback" : "fts5",
+      match_status: topResults.length > 0 ? "matched" : "no_match",
+      indexed_content_types: indexedContentTypes
     };
   }
 

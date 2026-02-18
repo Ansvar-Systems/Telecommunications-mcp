@@ -17,3 +17,8 @@ All notable changes to this project are documented in this file.
 - Added contract fixtures (`fixtures/golden-tests.json`, `fixtures/golden-hashes.json`) and validation scripts.
 - Updated STIR/SHAKEN citation URL to the correct eCFR subpart (`subpart-HH`).
 - Switched SQLite journal mode to `DELETE` for serverless-safe runtime behavior.
+- Upgraded `search_domain_knowledge` to FTS5-first retrieval with keyword fallback and explicit match status markers.
+- Added alias-aware and shorthand-aware standards mapping for telecom expert queries.
+- Added `quality:prod-ready` gate script and CI enforcement for production readiness checks.
+- Added explicit search status markers (`matched`, `no_match`, `not_indexed_content_type`, `empty_query`) for agent-safe search behavior.
+- Added `detail_level` control (`compact|standard|full`) for `build_telecom_expert_brief` to reduce token-heavy responses in production agents.
