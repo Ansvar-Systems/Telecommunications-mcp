@@ -12,8 +12,7 @@ const staleWindowDays = 30;
 function createApp() {
   const db = initializeDatabase(process.env.TELECOM_MCP_DB_PATH);
   const service = new TelecomDomainService(db);
-  const mcpServer = createTelecommunicationsMcpServer(service);
-  const transports = new Map<string, StreamableHTTPServerTransport>();
+  const transports = new Map<string, { transport: StreamableHTTPServerTransport; server: ReturnType<typeof createTelecommunicationsMcpServer> }>();
 
   const app = express();
   app.use(express.json({ limit: "1mb" }));
@@ -46,12 +45,13 @@ function createApp() {
     return typeof raw === "string" ? raw : undefined;
   };
 
-  const closeTransport = async (transport: StreamableHTTPServerTransport) => {
-    const sid = transport.sessionId;
-    if (sid) {
-      transports.delete(sid);
+  const closeSession = async (sessionId: string) => {
+    const session = transports.get(sessionId);
+    if (session) {
+      transports.delete(sessionId);
+      await session.transport.close();
+      await session.server.close();
     }
-    await transport.close();
   };
 
   app.get("/mcp", async (req: Request, res: Response) => {
@@ -68,8 +68,8 @@ function createApp() {
       return;
     }
 
-    const transport = transports.get(sessionId);
-    if (!transport) {
+    const session = transports.get(sessionId);
+    if (!session) {
       res.status(404).json({
         jsonrpc: "2.0",
         error: {
@@ -81,58 +81,62 @@ function createApp() {
       return;
     }
 
-    await transport.handleRequest(req, res);
+    await session.transport.handleRequest(req, res);
   });
 
   app.post("/mcp", async (req: Request, res: Response) => {
     const sessionId = getSessionId(req);
-    let transport = sessionId ? transports.get(sessionId) : undefined;
+    const session = sessionId ? transports.get(sessionId) : undefined;
 
     try {
-      if (!transport) {
-        if (sessionId) {
-          res.status(404).json({
-            jsonrpc: "2.0",
-            error: {
-              code: -32001,
-              message: "Session not found. Start with an initialize request without Mcp-Session-Id."
-            },
-            id: null
-          });
-          return;
-        }
-
-        if (!isInitializeRequest(req.body)) {
-          res.status(400).json({
-            jsonrpc: "2.0",
-            error: {
-              code: -32600,
-              message: "Bad Request: initialize must be sent before other MCP methods."
-            },
-            id: null
-          });
-          return;
-        }
-
-        transport = new StreamableHTTPServerTransport({
-          sessionIdGenerator: () => randomUUID(),
-          onsessioninitialized: (sid) => {
-            transports.set(sid, transport!);
-          }
-        });
-        transport.onclose = () => {
-          const sid = transport?.sessionId;
-          if (sid) {
-            transports.delete(sid);
-          }
-        };
-        transport.onerror = (error) => {
-          console.error("MCP transport error:", error);
-        };
-        await mcpServer.connect(transport);
+      if (session) {
+        await session.transport.handleRequest(req, res, req.body);
+        return;
       }
 
+      if (sessionId) {
+        res.status(404).json({
+          jsonrpc: "2.0",
+          error: {
+            code: -32001,
+            message: "Session not found. Start with an initialize request without Mcp-Session-Id."
+          },
+          id: null
+        });
+        return;
+      }
+
+      if (!isInitializeRequest(req.body)) {
+        res.status(400).json({
+          jsonrpc: "2.0",
+          error: {
+            code: -32600,
+            message: "Bad Request: initialize must be sent before other MCP methods."
+          },
+          id: null
+        });
+        return;
+      }
+
+      const transport = new StreamableHTTPServerTransport({
+        sessionIdGenerator: () => randomUUID(),
+      });
+      const mcpServer = createTelecommunicationsMcpServer(service);
+      await mcpServer.connect(transport);
+      transport.onclose = () => {
+        const sid = transport.sessionId;
+        if (sid) {
+          transports.delete(sid);
+          mcpServer.close().catch(() => {});
+        }
+      };
+      transport.onerror = (error) => {
+        console.error("MCP transport error:", error);
+      };
       await transport.handleRequest(req, res, req.body);
+      if (transport.sessionId) {
+        transports.set(transport.sessionId, { transport, server: mcpServer });
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown error";
       if (!res.headersSent) {
@@ -145,9 +149,6 @@ function createApp() {
           },
           id: null
         });
-      }
-      if (transport && !res.writableEnded) {
-        await closeTransport(transport);
       }
     }
   });
@@ -166,8 +167,8 @@ function createApp() {
       return;
     }
 
-    const transport = transports.get(sessionId);
-    if (!transport) {
+    const session = transports.get(sessionId);
+    if (!session) {
       res.status(404).json({
         jsonrpc: "2.0",
         error: {
@@ -179,14 +180,13 @@ function createApp() {
       return;
     }
 
-    await transport.handleRequest(req, res);
+    await session.transport.handleRequest(req, res);
   });
 
   const close = async () => {
-    for (const transport of transports.values()) {
-      await closeTransport(transport);
+    for (const [sid] of transports) {
+      await closeSession(sid);
     }
-    await mcpServer.close();
     db.close();
   };
 
