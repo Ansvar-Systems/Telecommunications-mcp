@@ -1,19 +1,19 @@
-FROM --platform=linux/amd64 node:24-alpine AS builder
+FROM node:22-alpine AS builder
 RUN apk add --no-cache python3 make g++
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --ignore-scripts
-RUN cd node_modules/better-sqlite3 && npm run build-release
+RUN cd node_modules/better-sqlite3 && npx --yes prebuild-install || npm rebuild better-sqlite3
 COPY src/ ./src/
 COPY tsconfig.json ./
 RUN npm run build
 
-FROM --platform=linux/amd64 node:24-alpine AS production
+FROM node:22-alpine AS production
 RUN apk add --no-cache python3 make g++
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY --from=builder /app/dist ./dist
-RUN npm ci --omit=dev --ignore-scripts && cd node_modules/better-sqlite3 && npm run build-release
+RUN npm ci --omit=dev --ignore-scripts && cd node_modules/better-sqlite3 && npx --yes prebuild-install || npm rebuild better-sqlite3
 RUN apk del python3 make g++ && npm cache clean --force
 RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
 RUN mkdir -p /app/data
