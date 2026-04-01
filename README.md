@@ -2,6 +2,33 @@
 
 Telecommunications domain intelligence MCP implementing the shared tool contract from `domain-mcp-specifications.md` (v1.0, 2026-02-18).
 
+
+### Public Endpoint (Streamable HTTP)
+
+Connect from any MCP client (Claude Desktop, ChatGPT, Cursor, VS Code, GitHub Copilot):
+
+```
+https://mcp.ansvar.eu/telecommunications/mcp
+```
+
+**Claude Code:**
+```bash
+claude mcp add telecommunications --transport http https://mcp.ansvar.eu/telecommunications/mcp
+```
+
+**Claude Desktop / Cursor** (`claude_desktop_config.json`):
+```json
+{
+  "mcpServers": {
+    "telecommunications": {
+      "type": "url",
+      "url": "https://mcp.ansvar.eu/telecommunications/mcp"
+    }
+  }
+}
+```
+
+No authentication required. See [all Ansvar MCP endpoints](https://github.com/Ansvar-Systems/Ansvar-Architecture-Documentation/blob/main/docs/mcp-remote-access.md).
 ## Scope
 
 Covers telecom operators, ISPs, and digital infrastructure providers across EU and US contexts, including:
