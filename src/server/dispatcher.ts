@@ -10,6 +10,7 @@ import {
 } from "../foundation/planner.js";
 import { extractExactReferenceResolutionCandidates } from "../foundation/resolution.js";
 import { makeToolResponse } from "../utils/metadata.js";
+import { buildCitation } from "../citation.js";
 
 export type ToolDispatchRequest = {
   tool: string;
@@ -168,7 +169,15 @@ export class TelecomToolDispatcher {
             }
           );
         }
-        return wrap(pattern);
+        return wrap({
+          ...pattern,
+          _citation: buildCitation(
+            String((pattern as Record<string, unknown>).id ?? args.pattern_id),
+            String((pattern as Record<string, unknown>).name ?? (pattern as Record<string, unknown>).id ?? args.pattern_id),
+            "get_architecture_pattern",
+            { pattern_id: String(args.pattern_id ?? "") },
+          ),
+        });
       }
       case "classify_data":
         return wrap(
