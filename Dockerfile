@@ -15,10 +15,9 @@ COPY package.json package-lock.json ./
 COPY --from=builder /app/dist ./dist
 RUN npm ci --omit=dev --ignore-scripts && cd node_modules/better-sqlite3 && npm run build-release
 RUN apk del python3 make g++ && npm cache clean --force
-RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
 RUN mkdir -p /app/data
-RUN chown -R nodejs:nodejs /app
-USER nodejs
+RUN chown -R node:node /app
+USER node
 ENV NODE_ENV=production
 ENV PORT=3000
 EXPOSE 3000
